@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <section class="dashboard-section">
+            <h2>Admin Dashboard - Pending Posts</h2>
+            <div id="pendingPostsContainer"></div>
+        </section>
+
+        <section class="dashboard-section">
+            <h2>Admin Dashboard - Pending Transfers</h2>
+            <div id="transfersContainer"></div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchPendingTransfers(); // Fetch and display pending transfers on page load
+        });
+    </script>
+    <script src="js/admin.js" defer></script>
+</body>
+</html>

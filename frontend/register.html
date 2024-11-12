@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="css/styles.css">
+
+</head>
+<body>
+    <h2>Register</h2>
+    <form id="registerForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br>
+
+        <label for="place">Place:</label>
+        <select id="place" name="place" required onchange="updateBankFields()">
+            <option value="">Select Place</option>
+            <option value="Tunisia">Tunisia</option>
+            <option value="Out-Tunisia">Out-Tunisia</option>
+        </select><br>
+
+        <!-- Bank Info Fields for Tunisia -->
+        <div id="tunisiaBankFields" style="display:none;">
+            <label>Account Holder Full Name:</label>
+            <input type="text" id="accountHolderNameTunisia" name="accountHolderName"><br>
+
+            <label>Bank Name:</label>
+            <input type="text" id="bankNameTunisia" name="bankName"><br>
+
+            <label>Bank Account Number:</label>
+            <input type="text" id="accountNumberTunisia" name="accountNumber"><br>
+
+            <label>Phone Number:</label>
+            <input type="tel" id="phoneNumberTunisia" name="phoneNumber"><br>
+        </div>
+
+        <!-- Bank Info Fields for Out-Tunisia -->
+        <div id="outTunisiaBankFields" style="display:none;">
+            <label>Select Service:</label>
+            <select id="service" name="service">
+                <option value="PayPal">PayPal</option>
+                <option value="Wise">Wise</option>
+            </select><br>
+
+            <label>Service Account Name:</label>
+            <input type="text" id="serviceAccountName" name="serviceAccountName"><br>
+
+            <label>Service Email:</label>
+            <input type="email" id="serviceEmail" name="serviceEmail"><br>
+
+            <label>Currency:</label>
+            <input type="text" id="currency" name="currency"><br>
+        </div>
+
+        <button type="submit">Register</button>
+    </form>
+    <script src="js/auth.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Post</title>
+    <link rel="stylesheet" href="css/styles.css">
+
+</head>
+<body>
+    <h2>Create a New Post</h2>
+    <form id="postForm">
+        <label for="amountDT">Amount (DT):</label>
+        <input type="number" id="amountDT" name="amountDT" required>
+        <span id="amountUSD">Equivalent in USD: $0.00</span><br>
+
+        <label for="receiverEmail">Receiver Email:</label>
+        <input type="email" id="receiverEmail" name="receiverEmail" required><br>
+
+        <label for="mediatorSelect">Select Mediator:</label>
+        <select id="mediatorSelect" name="mediatorUsername" required>
+            <option value="">Select a Mediator</option>
+            <!-- Mediator options will be populated dynamically -->
+        </select><br>
+
+        <div id="mediatorBankInfo" style="display: none;">
+            <h4>Mediator Bank Info:</h4>
+            <p id="mediatorDetails"></p>
+        </div>
+
+        <label for="paymentReceipt">Upload Payment Receipt:</label>
+        <input type="file" id="paymentReceipt" name="paymentReceipt" accept="image/*"><br><br>
+
+        <button type="submit">Submit Post</button>
+    </form>
+    <script src="js/post_creation.js" defer></script>
+</body>
+</html>
