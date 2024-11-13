@@ -5,6 +5,9 @@
     box-sizing: border-box;
 }
 
+.indexbody{
+    padding: 0em;
+}
 /* Body Styling */
 body {
     font-family: Arial, sans-serif;
@@ -16,18 +19,31 @@ body {
     margin: 0;
     padding: 0;
     min-height: 100vh;
-    padding-top: 2rem;
+    padding-top: 1rem;
     width: 100vw;
     overflow-x: hidden;
 }
 
 /* Header Styling */
 header {
-    background-color: #ff4d4d; /* Red */
+    background-color: #df0000; /* Red */
     color: white;
     padding: 1rem;
-    text-align: center;
     width: 100%;
+    display: flex;
+}
+.headerlogo {
+    width: 20%;
+}
+.headertext {
+    text-align: center;
+    width: 60%;
+}
+section {
+    padding-left: 15em;
+    padding-right:15em;
+    padding-bottom: 2em;
+    padding-top: 2em;
 }
 
 /* Navigation Styling */
@@ -40,7 +56,7 @@ nav {
 
 nav a {
     text-decoration: none;
-    color: #ff4d4d; /* Red */
+    color: #df0000; /* Red */
     font-weight: bold;
     padding: 0.5rem 1rem;
     border-radius: 4px;
@@ -48,7 +64,7 @@ nav a {
 }
 
 nav a:hover {
-    background-color: #ff4d4d;
+    background-color: #df0000;
     color: white;
 }
 
@@ -56,12 +72,46 @@ nav a:hover {
 main {
     background-color: #fff;
     width: 100%;
-    max-width: 1300px;
+    max-width: 90%;
     padding: 1rem;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
-    margin: 1rem 0;
+    margin: 1rem;
 }
+/* Footer Styling */
+footer {
+    background-color: #333;
+    color: #fff;
+    padding: 1.5rem;
+    text-align: center;
+    width: 100%;
+    margin-top: 2rem;
+}
+
+.footer-content {
+    max-width: 1080px;
+    margin: 0 auto;
+}
+
+.footer-content p {
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+}
+
+.footer-content a {
+    color: #df0000; /* Red color for links */
+    text-decoration: none;
+    margin: 0 0.5rem;
+}
+
+.footer-content a:hover {
+    color: #ff3333; /* Darker red on hover */
+}
+
+.social-links {
+    margin-top: 0.5rem;
+}
+
 
 /* Form Styling */
 form {
@@ -85,7 +135,7 @@ select {
 }
 
 button[type="submit"] {
-    background-color: #ff4d4d;
+    background-color: #df0000;
     color: white;
     border: none;
     padding: 0.7rem;
@@ -122,7 +172,7 @@ button[type="submit"]:hover {
 /* Section Headings */
 .dashboard-section h2 {
     font-size: 1.8rem;
-    color: #ff4d4d;
+    color: #df0000;
     text-align: center;
     margin-bottom: 15px;
 }
@@ -145,7 +195,7 @@ button[type="submit"]:hover {
 }
 
 .post h3 {
-    color: #ff4d4d;
+    color: #df0000;
     margin-top: 0;
 }
 
@@ -159,7 +209,7 @@ button[type="submit"]:hover {
 button {
     padding: 10px;
     color: #fff;
-    background-color: #ff4d4d;
+    background-color: #df0000;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -232,4 +282,7 @@ button[onclick*="rejected"]:hover {
     .dashboard-section {
         width: 100%;
     }
+}
+#contentFrame {
+   max-height: 105vh;
 }
