@@ -43,9 +43,12 @@ document.getElementById('mediatorForm').addEventListener('submit', async (e) => 
 
     const mediatorData = { username, email, place, bankInfo };
     const token = localStorage.getItem('token'); // Retrieve the token from local storage
-
+    // Determine the base URL dynamically
+        const baseUrl = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000'
+            : `http://${window.location.hostname}:5000`;
     try {
-        const response = await fetch('http://localhost:5000/admin/mediators', {
+        const response = await fetch(`${baseUrl}/admin/mediators`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

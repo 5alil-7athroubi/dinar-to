@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <header>
+    <header id="headerprofile">
         <h2>User Profile</h2>
     </header>
 
@@ -15,27 +15,27 @@
         <!-- Profile Form -->
         <form id="profileForm">
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required><br>
+            <input type="text" id="username" name="username" required>
 
             <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required><br>
+            <input type="email" id="email" name="email" readonly>
 
             <label for="place">Place:</label>
-            <input type="text" id="place" name="place" readonly><br>
+            <input type="text" id="place" name="place" readonly>
 
             <!-- Bank Info Fields for Tunisia -->
             <div id="tunisiaBankFields" style="display:none;">
                 <label>Account Holder Name:</label>
-                <input type="text" id="accountHolderNameTunisia" name="accountHolderName"><br>
+                <input type="text" id="accountHolderNameTunisia" name="accountHolderName">
 
                 <label>Bank Name:</label>
-                <input type="text" id="bankNameTunisia" name="bankName"><br>
+                <input type="text" id="bankNameTunisia" name="bankName">
 
                 <label>Account Number:</label>
-                <input type="text" id="accountNumberTunisia" name="accountNumber"><br>
+                <input type="text" id="accountNumberTunisia" name="accountNumber">
 
                 <label>Phone Number:</label>
-                <input type="tel" id="phoneNumberTunisia" name="phoneNumber"><br>
+                <input type="tel" id="phoneNumberTunisia" name="phoneNumber">
             </div>
 
             <!-- Bank Info Fields for Out-Tunisia -->
@@ -44,16 +44,16 @@
                 <select id="service" name="service">
                     <option value="PayPal">PayPal</option>
                     <option value="Wise">Wise</option>
-                </select><br>
+                </select>
 
                 <label>Service Account Name:</label>
-                <input type="text" id="serviceAccountName" name="serviceAccountName"><br>
+                <input type="text" id="serviceAccountName" name="serviceAccountName">
 
                 <label>Service Email:</label>
-                <input type="email" id="serviceEmail" name="serviceEmail"><br>
+                <input type="email" id="serviceEmail" name="serviceEmail">
 
                 <label>Currency:</label>
-                <input type="text" id="currency" name="currency"><br>
+                <input type="text" id="currency" name="currency">
             </div>
 
             <button type="submit">Save Changes</button>

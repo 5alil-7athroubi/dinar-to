@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', async () => {
+﻿document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
     
     if (!token) {
@@ -7,11 +7,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    // Determine the base URL dynamically
+    const baseUrl = window.location.hostname === 'localhost'
+        ? 'http://localhost:5000'
+        : `http://${window.location.hostname}:5000`;
+
     // Fetch and display pending posts
     try {
-        const response = await fetch('http://localhost:5000/admin/posts/pending', {
+        const response = await fetch(`${baseUrl}/admin/posts/pending`, {
             method: 'GET',
-            headers: { 'Authorization': `Bearer ${token}` }
+            headers: { 'Authorization': `Bearer ${token}` },
         });
 
         if (response.ok) {
@@ -30,10 +35,61 @@ document.addEventListener('DOMContentLoaded', async () => {
     fetchPendingTransfers();
 });
 
+// Global variable to track the current post ID
+let currentPostId;
+
+function openRejectionModal(postId) {
+    currentPostId = postId; // Store the post ID for later use
+    document.getElementById('rejectionModal').style.display = 'block'; // Show the modal
+}
+function opentransferrejectionModal(postId) {
+    currentPostId = postId; // Store the post ID for later use
+    document.getElementById('transferrejectionModal').style.display = 'block'; // Show the modal
+}
+
+function closetransferrejectionModal() {
+    currentPostId = null; // Clear the post ID
+    document.getElementById('transferrejectionModal').style.display = 'none'; // Hide the modal
+}
+function closeRejectionModal() {
+    currentPostId = null; // Clear the post ID
+    document.getElementById('rejectionModal').style.display = 'none'; // Hide the modal
+}
+
+async function submitRejection() {
+    const rejectionReason = document.getElementById('rejectionReason').value;
+
+    if (!rejectionReason) {
+        alert('Rejection reason is required'); // Validate the input
+        return;
+    }
+
+    // Handle the rejection process
+    await updatePostStatus(currentPostId, 'rejected', rejectionReason);
+    closeRejectionModal(); // Close the modal after submission
+}
+async function submittransferRejection() {
+    const secondRejectionReason = document.getElementById('secondRejectionReason').value;
+
+    if (!secondRejectionReason) {
+        alert('second Rejection reason is required'); // Validate the input
+        return;
+    }
+
+    // Handle the rejection process
+    await updateTransferStatus(currentPostId, 'rejected', secondRejectionReason);
+    closetransferrejectionModal(); // Close the modal after submission
+}
+
+
+
 function displayPendingPosts(posts) {
     const postsContainer = document.getElementById('pendingPostsContainer');
     postsContainer.innerHTML = '';
-
+    if (posts.length === 0) {
+        pendingPostsContainer.innerHTML = '<p>No pending transfers available.</p>';
+        return;
+    }
     posts.forEach(post => {
         const postDiv = document.createElement('div');
         postDiv.className = 'post';
@@ -84,27 +140,36 @@ function displayPendingPosts(posts) {
             ` : ''}
 
             <h4>Payment Receipt:</h4>
-            <img src="${post.paymentReceipt ? `http://localhost:5000/${post.paymentReceipt}` : '#'}" alt="Payment Receipt" style="width:200px;height:auto;">
-
+            <img src="${post.paymentReceipt ? `${window.location.hostname === 'localhost' ? 'http://localhost:5000' : `http://${window.location.hostname}:5000`}/${post.paymentReceipt}` : '#'}" alt="Payment Receipt" style="width:200px;height:auto;"><br>
+            <h4>Status: ${post.status}</h4>
+            ${
+                post.rejectionReason
+                    ? `<p><strong>Rejection Reason:</strong> ${post.rejectionReason}</p>` // Display rejection reason if it exists
+                    : ''
+            }
             <button onclick="updatePostStatus('${post._id}', 'approved')">Approve</button>
-            <button onclick="updatePostStatus('${post._id}', 'rejected')">Reject</button>
+            <button onclick="openRejectionModal('${post._id}')">Reject</button>
         `;
         postsContainer.appendChild(postDiv);
     });
 }
 
 
-async function updatePostStatus(postId, status) {
+async function updatePostStatus(postId, status, rejectionReason = null) {
     const token = localStorage.getItem('token');
-
+       // Determine the base URL dynamically
+        const baseUrl = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000'
+            : `http://${window.location.hostname}:5000`;
+            console.log('Sending data:', { postId, status, rejectionReason }); 
     try {
-        const response = await fetch(`http://localhost:5000/admin/posts/${postId}`, {
+        const response = await fetch(`${baseUrl}/admin/posts/${postId}`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ status })
+            body: JSON.stringify({ status, rejectionReason }),
         });
 
         if (response.ok) {
@@ -123,9 +188,12 @@ async function updatePostStatus(postId, status) {
 
 async function fetchPendingTransfers() {
     const token = localStorage.getItem('token');
-    
+        // Determine the base URL dynamically
+        const baseUrl = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000'
+            : `http://${window.location.hostname}:5000`;
     try {
-        const response = await fetch('http://localhost:5000/admin/posts/transfers/pending', {
+        const response = await fetch(`${baseUrl}/admin/posts/transfers/pending`, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -204,8 +272,7 @@ function displayPendingTransfers(posts) {
             ` : ''}
 
             <h4>Primary Payment Receipt:</h4>
-            <img src="${post.paymentReceipt ? `http://localhost:5000/${post.paymentReceipt}` : '#'}" alt="Payment Receipt" style="width:200px;height:auto;">
-
+           <img src="${post.paymentReceipt ? `${window.location.hostname === 'localhost' ? 'http://localhost:5000' : `http://${window.location.hostname}:5000`}/${post.paymentReceipt}` : '#'}" alt="Payment Receipt" style="width:200px;height:auto;"><br>
             <hr>
 
             <!-- Secondary (Transfer) Details -->
@@ -251,28 +318,35 @@ function displayPendingTransfers(posts) {
             ` : ''}
 
             <h4>Secondary Payment Receipt:</h4>
-            <img src="${post.secondTransferReceipt ? `http://localhost:5000/${post.secondTransferReceipt}` : '#'}" alt="Second Payment Receipt" style="width:200px;height:auto;">
-
+            <img src="${post.secondTransferReceipt ? `${window.location.hostname === 'localhost' ? 'http://localhost:5000' : `http://${window.location.hostname}:5000`}/${post.secondTransferReceipt}` : '#'}" alt="Payment Receipt" style="width:200px;height:auto;"><br>
+            ${
+                post.secondRejectionReason
+                    ? `<p><strong>Transfer Rejection Reason:</strong> ${post.secondRejectionReason}</p>` // Display rejection reason if it exists
+                    : ''
+            }
             <button onclick="updateTransferStatus('${post._id}', 'approved')">Approve</button>
-            <button onclick="updateTransferStatus('${post._id}', 'rejected')">Reject</button>
+            <button onclick="opentransferrejectionModal('${post._id}')">Reject</button>
         `;
 
         transfersContainer.appendChild(postDiv);
     });
 }
-async function updateTransferStatus(postId, status) {
+async function updateTransferStatus(postId, secondStatus, secondRejectionReason = null) {
     const token = localStorage.getItem('token');
     // Adjust the status if it's an approval action
-    const newStatus = (status === 'approved') ? 'transfer-approved' : 'transfer-rejected';
-
+    const newStatus = (secondStatus === 'approved') ? 'approved' : 'rejected';
+           // Determine the base URL dynamically
+        const baseUrl = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000'
+            : `http://${window.location.hostname}:5000`;
     try {
-        const response = await fetch(`http://localhost:5000/admin/posts/${postId}/transfer-status`, {
+        const response = await fetch(`${baseUrl}/admin/posts/${postId}/transfer-status`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ status: newStatus })
+            body: JSON.stringify({ secondStatus: newStatus, secondRejectionReason })
         });
 
         if (response.ok) {
@@ -287,4 +361,5 @@ async function updateTransferStatus(postId, status) {
         console.error('Error:', error);
     }
 }
+
 

@@ -15,7 +15,10 @@ const postSchema = new mongoose.Schema({
     secondMediatorUsername: String,
     secondTransferReceipt: { type: String, required: false },
     transferringUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // New field for transferring user
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    rejectionReason: { type: String },
+    secondStatus: { type: String },
+    secondRejectionReason: { type: String },
 });
 
 module.exports = mongoose.model('Post', postSchema);

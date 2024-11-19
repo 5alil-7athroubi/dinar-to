@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Archive</h1>
+    </header>
+    <main>
+        <div class="filter-buttons">
+            <button onclick="fetchArchiveData('all')">All</button>
+            <button onclick="fetchArchiveData('pending')">Pending</button>
+            <button onclick="fetchArchiveData('post-approved')">Post Approved</button>
+            <button onclick="fetchArchiveData('post-rejected')">Post Rejected</button>
+            <button onclick="fetchArchiveData('transfer-approved')">Transfer Approved</button>
+            <button onclick="fetchArchiveData('transfer-rejected')">Transfer Rejected</button>
+        </div>
+        <div id="archiveContainer" class="archive-container">
+            <!-- Data will be dynamically loaded here -->
+        </div>
+    </main>
+    <script src="js/archive.js" defer></script>
+</body>
+</html>

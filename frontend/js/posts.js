@@ -7,15 +7,17 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'login.html';
         return;
     }
-
     console.log("Fetching transferable posts...");
-
     fetchTransferablePosts(token);
 });
 
 async function fetchTransferablePosts(token) {
+      // Determine the base URL dynamically
+        const baseUrl = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000'
+            : `http://${window.location.hostname}:5000`;
     try {
-        const response = await fetch('http://localhost:5000/posts/transferable', {
+        const response = await fetch(`${baseUrl}/posts/transferable`, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -52,7 +54,7 @@ posts.forEach(post => {
          const email = post.userId?.email || 'Unknown';
      
          postDiv.innerHTML = `
-             <h3>Post by ${username} (${email})</h3>
+             <h3>Post by ${username}</h3>
              <p><strong>Amount:</strong> ${post.amountDT} DT ($${post.amountUSD} USD)</p>
              <button onclick="openTransferForm('${post._id}', ${post.amountDT}, ${post.amountUSD}, this)">Transfer</button>
          `;
@@ -69,6 +71,7 @@ function openTransferForm(postId, amountDT, amountUSD, transferButton) {
     transferFormContainer.id = 'dynamicTransferForm';
     transferFormContainer.className = 'transfer-form';
     transferFormContainer.innerHTML = `
+        <br><hr>
         <h3>Transfer Form</h3>
         <form id="transferForm">
             <input type="hidden" id="transferPostId" value="${postId}">
@@ -110,9 +113,13 @@ async function populateSecondMediatorOptions() {
     if (!mediatorSelect) return;
 
     mediatorSelect.innerHTML = '<option value="">Select a Mediator</option>';
+    // Determine the base URL dynamically
+        const baseUrl = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000'
+            : `http://${window.location.hostname}:5000`;
 
     try {
-        const response = await fetch('http://localhost:5000/mediators', {
+        const response = await fetch(`${baseUrl}/mediators`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -146,7 +153,12 @@ function submitTransferForm(e) {
     formData.append('transferReceipt', transferReceipt);
 
     const token = localStorage.getItem('token');
-    fetch(`http://localhost:5000/posts/${postId}/transfer`, {
+    // Determine the base URL dynamically
+        const baseUrl = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000'
+            : `http://${window.location.hostname}:5000`;
+
+    fetch(`${baseUrl}/posts/${postId}/transfer`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
@@ -157,13 +169,17 @@ function submitTransferForm(e) {
             document.getElementById('transferForm').reset();
             document.getElementById('dynamicTransferForm').style.display = 'none';
             // Check if loaded within an iframe
-                if (window.self !== window.top) {
-                    // Reload the parent window (index.html) from within an iframe
-                    window.parent.location.href = 'http://127.0.0.1:8080/index.html';
-                } else {
-                    // If not in an iframe, reload the current window to index.html
-                    window.location.href = 'index.html';
-                }
+                 if (window.self !== window.top) {
+                     // Use the current hostname to construct the base URL dynamically
+                     const currentHost = window.location.hostname;
+                     const redirectUrl = `http://${currentHost}:8080/index.html`;
+                     // Reload the parent window (index.html) from within an iframe
+                     window.parent.location.href = redirectUrl;
+                 } else {
+                     // If not in an iframe, reload the current window to index.html
+                     const currentHost = window.location.hostname;
+                     window.location.href = `http://${currentHost}:8080/index.html`;
+                 }
         } else {
             response.json().then(data => alert(`Failed to submit transfer: ${data.message}`));
         }
@@ -190,9 +206,13 @@ async function fetchMediatorBankInfo(selectedMediator) {
     const mediatorDetails = document.getElementById('mediatorDetails');
 
     if (!mediatorBankInfoDiv || !mediatorDetails) return;
+     // Determine the base URL dynamically
+        const baseUrl = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000'
+            : `http://${window.location.hostname}:5000`;
 
     try {
-        const response = await fetch(`http://localhost:5000/mediators/${selectedMediator}`, {
+        const response = await fetch(`${baseUrl}/mediators/${selectedMediator}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 

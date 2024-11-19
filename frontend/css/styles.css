@@ -4,62 +4,98 @@
     padding: 0;
     box-sizing: border-box;
 }
-
 .indexbody{
-    padding: 0em;
+    margin: 0px;
+    padding: 0px;
+    overflow-y: auto;
 }
-/* Body Styling */
+h2 {
+    font-size: 1.8rem;
+    color: #df0000;
+    text-align: center;
+    margin-bottom: 1rem;
+}
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f6f9;
     color: #333;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0;
+    margin: 0; /* Ensure no unwanted margin */
+    padding: 1rem; /* Padding inside the body */
+    box-sizing: border-box; /* Ensure padding is included in width/height */
+    width: 100%;
+    overflow: hidden;
+}
+html {
+    margin: 0; /* Remove default browser margins */
     padding: 0;
-    min-height: 100vh;
-    padding-top: 1rem;
-    width: 100vw;
-    overflow-x: hidden;
+    width: 100%;
+    height: auto; /* Let height adjust based on content */
 }
 
 /* Header Styling */
 header {
-    background-color: #df0000; /* Red */
+    background-color: #df0000;
     color: white;
-    padding: 1rem;
+    padding: 0.5rem;
     width: 100%;
     display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+header#headerprofile{
+    margin: 0; /* Removes any default margin on h2 that might affect alignment */
+    font-size: 1.8rem; /* Adjust font size if needed */
+    color: white; 
+    justify-content: center;
+}
+header#headerprofile h2{
+    margin:0.5em;
+    color: white; 
+}
+
 .headerlogo {
     width: 20%;
+    max-width: 20%;
 }
+
 .headertext {
     text-align: center;
     width: 60%;
+    margin: 0;
 }
-section {
-    padding-left: 15em;
-    padding-right:15em;
-    padding-bottom: 2em;
-    padding-top: 2em;
+
+/* Welcome Section */
+.welcome-title {
+    font-size: 2rem;
+    text-align: center;
+    margin: 0.5rem 0;
+}
+
+.welcome-subtitle {
+    font-size: 1.2rem;
+    text-align: center;
+    margin: 0.5rem 0;
 }
 
 /* Navigation Styling */
 nav {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 1000;
     display: flex;
-    gap: 1rem;
-    margin: 1rem 0;
+    flex-wrap: wrap;
     justify-content: center;
+    width: 100%;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 nav a {
     text-decoration: none;
-    color: #df0000; /* Red */
+    color: #df0000;
     font-weight: bold;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+    padding: 1rem 2.5rem;
     transition: background-color 0.3s ease;
 }
 
@@ -72,20 +108,22 @@ nav a:hover {
 main {
     background-color: #fff;
     width: 100%;
-    max-width: 90%;
-    padding: 1rem;
+    max-width: 1400px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
-    margin: 1rem;
+    margin:auto;
+    border:none;
 }
+
+
 /* Footer Styling */
 footer {
     background-color: #333;
     color: #fff;
-    padding: 1.5rem;
+    padding: 1rem;
     text-align: center;
     width: 100%;
-    margin-top: 2rem;
+    margin-top: auto;
 }
 
 .footer-content {
@@ -99,27 +137,24 @@ footer {
 }
 
 .footer-content a {
-    color: #df0000; /* Red color for links */
+    color: #df0000;
     text-decoration: none;
-    margin: 0 0.5rem;
 }
 
 .footer-content a:hover {
-    color: #ff3333; /* Darker red on hover */
+    color: #ff3333;
 }
 
 .social-links {
     margin-top: 0.5rem;
 }
 
-
 /* Form Styling */
 form {
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
+    width: 100%;
 }
 
 input[type="text"],
@@ -128,7 +163,7 @@ input[type="email"],
 input[type="file"],
 input[type="number"],
 select {
-    padding: 0.4rem;
+    padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;
     width: 100%;
@@ -149,65 +184,9 @@ button[type="submit"]:hover {
     background-color: #cc0000;
 }
 
-/* Admin Dashboard Styling */
-.dashboard-container {
-    display: flex;
-    gap: 20px;
-    width: 100%;
-    padding: 0 20px;
-}
-
-/* Each Section in Dashboard */
-.dashboard-section {
-    flex: 1;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-height: 100vh;
-    width: 100%;
-    max-width: 600vh;
-}
-
-/* Section Headings */
-.dashboard-section h2 {
-    font-size: 1.8rem;
-    color: #df0000;
-    text-align: center;
-    margin-bottom: 15px;
-}
-
-/* Transfer Form and Post Display */
-#transferablePostsContainer, #pendingPostsContainer, #transfersContainer {
-    width: 100%;
-    max-height: 600px;
-    overflow-y: auto;
-}
-
-/* Post Container Styling */
-.post {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
-    overflow: hidden;
-}
-
-.post h3 {
-    color: #df0000;
-    margin-top: 0;
-}
-
-.post p {
-    font-size: 0.95rem;
-    color: #555;
-    margin: 4px 0;
-}
-
 /* Button Styling */
 button {
-    padding: 10px;
+    padding: 0.5rem 1rem;
     color: #fff;
     background-color: #df0000;
     border: none;
@@ -236,53 +215,233 @@ button[onclick*="rejected"]:hover {
     background-color: #c0392b;
 }
 
-/* Transfer Form and Mediation Info Styling */
-#transferFormContainer {
+/* Dashboard and Post Containers */
+.dashboard-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
     width: 100%;
-    max-width: 800px;
-    margin: 20px 0;
-    padding: 20px;
-    background-color: #fafafa;
-    border-radius: 8px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: auto;
 }
 
-#mediatorBankInfo {
-    padding: 10px;
-    background-color: #eef3f7;
+/* Individual Post Styling */
+.post {
+    background-color: #fff;
+    padding: 1rem;
+    margin-bottom: 1rem;
     border-radius: 5px;
-    margin-bottom: 15px;
-    font-size: 0.9em;
-    color: #555;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    line-height: 1.6;
 }
 
-.transfer-form {
-    display: block;
-    margin-top: 10px;
-    padding: 20px;
-    background-color: #fafafa;
+.dashboard-section {
+    max-height: 500px;
+    overflow-y: auto;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* General Section Styling */
+section {
+    max-width: 800px;
+    margin: 1rem auto;
+    padding: 1rem;
+    text-align: left;
+    line-height: 1.6;
+}
+
+section h2 {
+    font-size: 1.8rem;
+    color: #df0000;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+section p {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+    text-align: justify;
+}
+
+section ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+section ol li,
+section ul li {
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+    line-height: 1.5;
+}
+
+/* Form Specific Styles */
+form#postForm,
+form#profileForm,
+form#mediatorForm {
+    max-width: 600px;
+    margin: 1rem auto;
+    padding: 1rem;
+    background-color: #f9f9f9;
     border-radius: 8px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Post Images */
-.post img {
-    max-width: 100%;
-    height: auto;
+form#postForm label,
+form#profileForm label,
+form#mediatorForm label {
+    font-size: 1rem;
+    color: #333;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+form#postForm input,
+form#postForm select,
+form#profileForm input,
+form#profileForm select,
+form#mediatorForm input,
+form#mediatorForm select {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
     border-radius: 4px;
-    margin-top: 10px;
 }
 
-/* Responsive Design */
-@media (max-width: 1080px) {
-    .dashboard-container {
-        flex-direction: column;
+form#postForm button[type="submit"],
+form#profileForm button[type="submit"],
+#signOutBtn,
+form#mediatorForm button[type="submit"] {
+    background-color: #df0000;
+    color: white;
+    border: none;
+    padding: 0.7rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    max-width: 200px;
+    margin: 1rem auto;
+    display: block;
+    text-align: center;
+}
+.archive-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+.archive-item button {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.archive-item button:hover {
+    background-color: #c0392b;
+}
+
+/* Responsive Adjustments for 768px */
+@media (max-width: 768px) {
+    .welcome-title {
+        font-size: 1.5rem;
+        margin: 5px;
     }
 
+    .welcome-subtitle{
+        font-size: 0.95rem;
+        margin: 5px;
+    }
+    section p,
+    section ol li,
+    section ul li,
+    .footer-content p {
+        font-size: 0.95rem;
+    }
+
+    h2,
+    .transfer-form h3,
+    form#postForm label,
+    form#profileForm label,
+    form#mediatorForm label {
+        font-size: 1.3rem;
+    }
+
+    #tunisiaBankFields,
+    #outTunisiaBankFields,
+    .transfer-form label,
+    .transfer-form p,
+    button {
+        font-size: 0.9rem;
+    }
+
+    header,
+    .dashboard-container,
+    main,
+    footer {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .headerlogo {
+        min-width: 120px;
+    }
+
+    .headertext,
     .dashboard-section {
         width: 100%;
+        max-width: 100%;
+        font-size: 1.3rem;
+    }
+
+    nav a {
+        padding: 1rem ;
+        font-size: 0.8rem;
+        width: 100px ;
+        text-align: center;
     }
 }
-#contentFrame {
-   max-height: 105vh;
+
+/* Responsive Adjustments for 480px */
+@media (max-width: 480px) {
+    .welcome-title {
+        font-size: 0.9rem;
+    }
+
+    .welcome-subtitle,
+    section p,
+    section ol li,
+    section ul li,
+    .footer-content p,
+    .transfer-form label,
+    .transfer-form p,
+    button {
+        font-size: 0.75rem;
+    }
+
+    h2,
+    .transfer-form h3,
+    form#postForm label,
+    form#profileForm label,
+    form#mediatorForm label {
+        font-size: 1.1rem;
+    }
+
+    .headerlogo {
+        min-width: 120px;
+    }
+
+    nav a {
+        padding: 1rem 0.2rem;
+        font-size: 0.8rem;
+        width: 80px;
+        text-align: center;
+    }
 }

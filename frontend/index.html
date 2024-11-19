@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="assets/LOGO4.png" type="image/png">
     <title>Dinar-To Platform - Welcome</title>
     <link rel="stylesheet" href="css/styles.css">
     <script>
@@ -15,8 +16,8 @@
     <header>
     <img class="headerlogo" src="assets/LOGO5.png" >
     <div class="headertext">
-        <h1>Welcome to Dinar-To Platform</h1>
-        <p>A Peer-to-Peer Transfer System</p>
+        <h1 class="welcome-title">Welcome to Dinar-To Platform</h1>
+        <p class="welcome-subtitle">A Peer-to-Peer Transfer System</p>
     </header>
 
     <!-- Conditional Navigation -->
@@ -24,18 +25,19 @@
         <a href="#" onclick="loadPage('home.html')">Home</a>
         <a id="login" style="display: none;" href="#" onclick="loadPage('login.html')">Login</a>
         <a id="register" style="display: none;" href="#" onclick="loadPage('register.html')">Register</a>
-        <a id="adminLinks" style="display: none;" href="#" onclick="loadPage('admin_dashboard.html')">Admin Dashboard</a>
+        <a id="adminLinks" style="display: none;" href="#" onclick="loadPage('admin_dashboard.html')">Dashboard</a>
         <a id="adminmediator" style="display: none;" href="#" onclick="loadPage('mediator_form.html')">Mediators</a>
         <a id="adminprofile" style="display: none;" href="#" onclick="loadPage('profile.html')">profile</a>
-        <a id="userLinks" style="display: none;" href="#" onclick="loadPage('dashboard.html')">User Dashboard</a>
-        <a id="userpost" style="display: none;" href="#" onclick="loadPage('post_form.html')">Create Post</a>
+        <a id="userLinks" style="display: none;" href="#" onclick="loadPage('dashboard.html')">Dashboard</a>
+        <a id="userpost" style="display: none;" href="#" onclick="loadPage('post_form.html')">Create</a>
+        <a id="archive" style="display: none;" href="#" onclick="loadPage('archive.html')">archive</a>
         <a id="userprofile" style="display: none;" href="#" onclick="loadPage('profile.html')">profile</a>
     </nav>
 
     <!-- Content Section for Dynamic Loading -->
-    <main  style="width:100%; height:800px; border:none;">
+    <main >
        <div id="messageContainer" style="display: none; position: fixed; top: 20px; width: 100%; text-align: center; background: #ffdbdb; padding: 10px; color: #333; font-weight: bold;"></div>
-        <iframe id="contentFrame" src="home.html" style="width:100%; height:800px; border:none;"></iframe>
+        <iframe id="contentFrame" src="home.html" style="width:100%; border:none;"></iframe>
     </main>
      
     <!-- Footer -->

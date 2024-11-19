@@ -1,0 +1,237 @@
+
+/* Disable scrolling for the body on login and register pages */
+/* Root Elements */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: auto;
+    display: flex;
+    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Login Form */
+#loginFormContainer {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin: 2rem;
+    max-width: 400px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+#loginFormContainer h2 {
+    font-size: 1.8rem;
+    color: #df0000;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+#loginFormContainer label {
+    font-size: 1rem;
+    color: #333;
+}
+
+#loginFormContainer input {
+    width: 80%; /* Constrain the width */
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    margin: 0.5rem auto; /* Add spacing and center */
+    display: block;
+}
+
+#loginFormContainer input:focus {
+    outline: none;
+    border-color: #df0000; /* Highlight border in red */
+    box-shadow: 0px 0px 4px rgba(223, 0, 0, 0.5); 
+}
+
+#loginFormContainer button {
+    background-color: #df0000;
+    color: white;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0.75rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    width: 100%; /* Align with input width */
+    margin: 0.5rem auto;
+}
+
+#loginFormContainer button:hover {
+    background-color: #cc0000;
+}
+
+/* Register Form */
+#registerFormContainer {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin: 2rem;
+    max-width: 500px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+
+#registerFormContainer h2 {
+    font-size: 1.8rem;
+    color: #df0000;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+#registerFormContainer label {
+    font-size: 1rem;
+    color: #333;
+}
+#registerFormContainer input,
+#registerFormContainer select {
+    width: 100%; /* Constrain the width to 80% of the parent container */
+    padding: 0.75rem; /* Add consistent padding */
+    border: 1px solid #ccc; /* Neutral border color */
+    border-radius: 4px; /* Smooth rounded corners */
+    font-size: 1rem; /* Standardized font size */
+    margin: 0.5rem auto; /* Add vertical spacing and center horizontally */
+    display: block; /* Ensure inputs and selects take up their own line */
+}
+
+#registerFormContainer input:focus,
+#registerFormContainer select:focus {
+    outline: none; /* Remove the default outline */
+    border-color: #df0000; /* Highlight border in red */
+    box-shadow: 0px 0px 4px rgba(223, 0, 0, 0.5); /* Subtle shadow effect */
+}
+#registerFormContainer button {
+    background-color: #df0000;
+    color: white;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0.75rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    width: 100%; /* Align with input width */
+    margin: 0.5rem auto;
+}
+
+#registerFormContainer button:hover {
+    background-color: #cc0000;
+}
+
+/* Conditional Sections */
+#tunisiaBankFields,
+#outTunisiaBankFields {
+    background-color: #eef3f7;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: #555;
+    display: none; /* Initially hidden */
+    width: 300px;
+}
+#tunisiaBankFields input,
+#tunisiaBankFields select,
+#outTunisiaBankFields input,
+#outTunisiaBankFields select{
+    width: 90%; /* Constrain the width to 80% of the parent container */
+    padding: 0.75rem; /* Add consistent padding */
+    border: 1px solid #ccc; /* Neutral border color */
+    border-radius: 4px; /* Smooth rounded corners */
+    font-size: 1rem; /* Standardized font size */
+    margin: 0.5rem auto; /* Add vertical spacing and center horizontally */
+    display: block; /* Ensure inputs and selects take up their own line */
+}
+#tunisiaBankFields input:focus,
+#tunisiaBankFields select:focus,
+#outTunisiaBankFields input:focus,
+#outTunisiaBankFields select:focus{
+    outline: none; /* Remove the default outline */
+    border-color: #df0000; /* Highlight border in red */
+    box-shadow: 0px 0px 4px rgba(223, 0, 0, 0.5); /* Subtle shadow effect */
+    width: 200px;
+}
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    #loginFormContainer,
+    #registerFormContainer {
+        padding: 1.5rem;
+    }
+    #registerFormContainer input,
+    #registerFormContainer select {
+        width: 100%; /* Constrain the width to 80% of the parent container */
+        padding: 0.75rem; /* Add consistent padding */
+        border: 1px solid #ccc; /* Neutral border color */
+        border-radius: 4px; /* Smooth rounded corners */
+        font-size: 1rem; /* Standardized font size */
+        margin: 0.5rem auto; /* Add vertical spacing and center horizontally */
+        display: block; /* Ensure inputs and selects take up their own line */
+    }
+
+    #loginFormContainer h2,
+    #registerFormContainer h2 {
+        font-size: 1.6rem;
+    }
+    #tunisiaBankFields input,
+    #tunisiaBankFields select,
+    #outTunisiaBankFields input,
+    #outTunisiaBankFields select{
+        width: 90%; /* Constrain the width to 80% of the parent container */
+        padding: 0.75rem; /* Add consistent padding */
+        border: 1px solid #ccc; /* Neutral border color */
+        border-radius: 4px; /* Smooth rounded corners */
+        font-size: 1rem; /* Standardized font size */
+        margin: 0.5rem auto; /* Add vertical spacing and center horizontally */
+        display: block; /* Ensure inputs and selects take up their own line */
+     }
+}
+
+@media (max-width: 480px) {
+    #loginFormContainer,
+    #registerFormContainer {
+        padding: 1rem;
+    }
+
+    #loginFormContainer h2,
+    #registerFormContainer h2 {
+        font-size: 1.4rem;
+    }
+    #registerFormContainer input,
+    #registerFormContainer select {
+        width: 90%; /* Constrain the width to 80% of the parent container */
+        padding: 0.75rem; /* Add consistent padding */
+        border: 1px solid #ccc; /* Neutral border color */
+        border-radius: 4px; /* Smooth rounded corners */
+        font-size: 1rem; /* Standardized font size */
+        margin: 0.5rem auto; /* Add vertical spacing and center horizontally */
+        display: block; /* Ensure inputs and selects take up their own line */
+    }
+    #tunisiaBankFields input,
+    #tunisiaBankFields select,
+    #outTunisiaBankFields input,
+    #outTunisiaBankFields select{
+        width: 90%; /* Constrain the width to 80% of the parent container */
+        padding: 0.75rem; /* Add consistent padding */
+        border: 1px solid #ccc; /* Neutral border color */
+        border-radius: 4px; /* Smooth rounded corners */
+        font-size: 1rem; /* Standardized font size */
+        margin: 0.5rem auto; /* Add vertical spacing and center horizontally */
+        display: block; /* Ensure inputs and selects take up their own line */
+     }
+
+}

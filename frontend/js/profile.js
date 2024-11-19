@@ -10,8 +10,12 @@
 
     // Fetch and populate user profile
     async function loadUserProfile() {
+         // Determine the base URL dynamically
+        const baseUrl = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000'
+            : `http://${window.location.hostname}:5000`;
         try {
-            const response = await fetch('http://localhost:5000/auth/profile', {
+            const response = await fetch(`${baseUrl}/auth/profile`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const userData = await response.json();
@@ -77,9 +81,13 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
     }
 
     const updatedData = { username, email, place, bankInfo };
+     // Determine the base URL dynamically
+        const baseUrl = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000'
+            : `http://${window.location.hostname}:5000`;
 
     try {
-        const response = await fetch('http://localhost:5000/auth/profile', {
+        const response = await fetch(`${baseUrl}/auth/profile`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,

@@ -22,9 +22,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         mediatorSelect.innerHTML = '<option value="">Select a Mediator</option>';
+        // Determine the base URL dynamically
+        const baseUrl = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000'
+            : `http://${window.location.hostname}:5000`;
 
         try {
-            const response = await fetch('http://localhost:5000/mediators', {
+            const response = await fetch(`${baseUrl}/mediators`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -51,8 +55,12 @@ document.addEventListener('DOMContentLoaded', () => {
     mediatorSelect.addEventListener('change', async () => {
         const selectedMediator = mediatorSelect.value;
         if (selectedMediator) {
+            // Determine the base URL dynamically
+        const baseUrl = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000'
+            : `http://${window.location.hostname}:5000`;
             try {
-                const response = await fetch(`http://localhost:5000/mediators/${selectedMediator}`, {
+                const response = await fetch(`${baseUrl}/mediators/${selectedMediator}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const mediator = await response.json();
@@ -93,9 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (paymentReceipt) {
             formData.append('paymentReceipt', paymentReceipt);
         }
-
+          // Determine the base URL dynamically
+        const baseUrl = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000'
+            : `http://${window.location.hostname}:5000`;
         try {
-            const response = await fetch('http://localhost:5000/posts', {
+            const response = await fetch(`${baseUrl}/posts`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData

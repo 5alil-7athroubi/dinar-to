@@ -50,9 +50,14 @@ if (registerForm) {
         }
 
         const userData = { username, email, password, place, bankInfo };
+        // Determine the base URL dynamically
+        const baseUrl = window.location.hostname === 'localhost'
+    ? 'http://localhost:5000'
+    : `http://${window.location.hostname}:5000`;
+
 
         try {
-            const response = await fetch('http://localhost:5000/auth/register', {
+            const response = await fetch('${baseUrl}/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData)
@@ -74,6 +79,7 @@ if (registerForm) {
 
 // Login form handler
 const loginForm = document.getElementById('loginForm');
+
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -81,8 +87,13 @@ if (loginForm) {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
+        // Determine the base URL dynamically
+        const baseUrl = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000'
+            : `http://${window.location.hostname}:5000`; 
+
         try {
-            const response = await fetch('http://localhost:5000/auth/login', {
+            const response = await fetch(`${baseUrl}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
@@ -93,20 +104,23 @@ if (loginForm) {
 
                 // Store token, role, and place in localStorage
                 localStorage.setItem('token', data.token);
-                localStorage.setItem('userPlace', data.place); 
+                localStorage.setItem('userPlace', data.place);
                 localStorage.setItem('role', data.role);
 
-                // Check if loaded within an iframe
+                // Redirect based on whether it's in an iframe
+                const currentHost = window.location.hostname;
+                const redirectUrl = `http://${currentHost}:8080/index.html`;
+
                 if (window.self !== window.top) {
                     // Reload the parent window (index.html) from within an iframe
-                    window.parent.location.href = 'http://127.0.0.1:8080/index.html';
+                    window.parent.location.href = redirectUrl;
                 } else {
                     // If not in an iframe, reload the current window to index.html
-                    window.location.href = 'index.html';
+                    window.location.href = redirectUrl;
                 }
             } else {
                 const errorData = await response.json();
-                alert(`Login failed: ${errorData.message}`);
+                alert(`Login failed: ${errorData.message || 'Unknown error'}`);
             }
         } catch (error) {
             alert('An error occurred during login');
@@ -114,5 +128,3 @@ if (loginForm) {
         }
     });
 }
-
-

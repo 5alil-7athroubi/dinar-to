@@ -18,6 +18,20 @@
             <div id="transfersContainer"></div>
         </section>
     </div>
+   <!-- Rejection Modal -->
+<div id="rejectionModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; border:1px solid #ccc; padding:20px; z-index:1000; width:300px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.2);">
+    <h3>Reject Post</h3>
+    <textarea id="rejectionReason" placeholder="Enter rejection reason..." rows="4" style="width:100%; padding:10px; border-radius:4px; border:1px solid #ddd; margin-bottom:10px;"></textarea>
+    <button onclick="submitRejection()" style="padding:10px 15px; margin-right:10px; background-color:#e74c3c; color:white; border:none; border-radius:4px; cursor:pointer;">Submit</button>
+    <button onclick="closeRejectionModal()" style="padding:10px 15px; background-color:#ccc; border:none; border-radius:4px; cursor:pointer;">Cancel</button>
+</div>
+<div id="transferrejectionModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; border:1px solid #ccc; padding:20px; z-index:1000; width:300px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.2);">
+    <h3>Reject transfer</h3>
+    <textarea id="secondRejectionReason" placeholder="Enter rejection reason..." rows="4" style="width:100%; padding:10px; border-radius:4px; border:1px solid #ddd; margin-bottom:10px;"></textarea>
+    <button onclick="submittransferRejection()" style="padding:10px 15px; margin-right:10px; background-color:#e74c3c; color:white; border:none; border-radius:4px; cursor:pointer;">Submit</button>
+    <button onclick="closetransferrejectionModal()" style="padding:10px 15px; background-color:#ccc; border:none; border-radius:4px; cursor:pointer;">Cancel</button>
+</div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {

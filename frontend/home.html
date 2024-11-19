@@ -36,5 +36,24 @@
             <li><strong>Quick & Reliable:</strong> Once approved, transfers are promptly processed, helping you reach your destination faster.</li>
         </ul>
     </section>
+    <script>
+    function sendHeight() {
+    const height = document.body.scrollHeight;
+    window.parent.postMessage({ iframeHeight: height }, '*');
+}
+
+// Listen for parent page's request
+window.addEventListener('message', (event) => {
+    if (event.data === 'getHeight') {
+        sendHeight();
+    }
+});
+
+// Send height on load
+window.addEventListener('load', sendHeight);
+
+// Optional: Send height on resize
+window.addEventListener('resize', sendHeight);
+</script>
 </body>
 </html>

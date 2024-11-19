@@ -81,7 +81,7 @@ router.post('/:postId/transfer', auth, upload.single('transferReceipt'), async (
         post.secondReceiverEmail = secondReceiverEmail;
         post.secondMediatorUsername = secondMediatorUsername;
         post.transferringUserId = req.user.userId; // Ensure transferringUserId is saved
-        post.status = 'transfer_pending';
+        post.secondStatus = 'pending';
 
         // Save the receipt if uploaded
         if (req.file) {
@@ -96,5 +96,82 @@ router.post('/:postId/transfer', auth, upload.single('transferReceipt'), async (
         res.status(500).json({ message: 'Error saving transfer details' });
     }
 });
+// Fetch archive data
+router.get('/archive', auth, async (req, res) => {
+    try {
+        const userId = req.user.userId; // This should be user1's ID
+        const { filter } = req.query;
+
+        console.log('Logged-in User:', userId);
+        console.log('Filter:', filter);
+
+        let query = {};
+        if (filter === 'pending') {
+            query = {
+                $or: [
+                    { userId, status: 'pending' }, 
+                    { transferringUserId: userId, secondStatus: 'pending' }
+                ]
+            };
+        } else if (filter === 'post-approved') {
+            query = { userId, status: 'approved' };
+        } else if (filter === 'post-rejected') {
+            query = { userId, status: 'rejected' };
+        } else if (filter === 'transfer-approved') {
+            query = { transferringUserId: userId, secondStatus: 'approved' };
+        } else if (filter === 'transfer-rejected') {
+            query = { transferringUserId: userId, secondStatus: 'rejected' };
+        } else {
+            query = {
+                $or: [
+                    { userId },
+                    { transferringUserId: userId }
+                ]
+            };
+        }
+
+        console.log('Constructed Query:', query);
+
+        const posts = await Post.find(query)
+            .populate('userId', 'username')
+            .populate('transferringUserId', 'username')
+            .sort({ createdAt: -1 }) 
+            .lean();
+
+        console.log('Filtered Posts:', posts);
+        res.status(200).json(posts);
+    } catch (error) {
+        console.error('Error fetching archive data:', error);
+        res.status(500).json({ message: 'Error fetching archive data' });
+    }
+});
+
+router.put('/:postId/cancel', auth, async (req, res) => {
+    try {
+        const { postId } = req.params;
+
+        // Find the post by ID
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        // Check if the logged-in user is the creator of the post
+        if (post.userId.toString() !== req.user.userId.toString()) {
+            return res.status(403).json({ message: 'You are not authorized to cancel this post' });
+        }
+
+        // Update the post status to 'cancelled'
+        post.status = 'cancelled';
+        await post.save();
+
+        res.status(200).json({ message: 'Post cancelled successfully', post });
+    } catch (error) {
+        console.error('Error cancelling post:', error);
+        res.status(500).json({ message: 'Error cancelling post', error: error.message });
+    }
+});
+
+
 
 module.exports = router;

@@ -30,7 +30,9 @@ router.get('/posts/pending', auth, adminOnly, async (req, res) => {
 router.put('/posts/:postId', auth, adminOnly, async (req, res) => {
     try {
         const { postId } = req.params;
-        const { status } = req.body;
+        const { status, rejectionReason } = req.body;
+
+        console.log('Received Data:', { status, rejectionReason });
 
         const post = await Post.findById(postId);
         if (!post) {
@@ -38,11 +40,16 @@ router.put('/posts/:postId', auth, adminOnly, async (req, res) => {
             return res.status(404).json({ message: 'Post not found' });
         }
 
+        // Update the status and optionally the rejection reason
         post.status = status;
+        if (status === 'rejected' && rejectionReason) {
+            post.rejectionReason = rejectionReason;
+        }
+
         await post.save();
 
         console.log(`Post status updated to "${status}" for post ID ${postId}`);
-        res.json({ message: `Post ${status} successfully` });
+        res.json({ message: `Post ${status} successfully`, post });
     } catch (error) {
         console.error('Error updating post status:', error);
         res.status(500).json({ message: 'Error updating post status', error: error.message });
@@ -54,7 +61,7 @@ router.put('/posts/:postId', auth, adminOnly, async (req, res) => {
 router.get('/posts/transfers/pending', auth, adminOnly, async (req, res) => {
     try {
         // Find posts with 'transfer_pending' status and populate primary user info
-        const posts = await Post.find({ status: 'transfer_pending' })
+        const posts = await Post.find({ secondStatus: 'pending' })
             .populate('userId', 'username email place bankInfo')
             .populate('transferringUserId', 'username email place bankInfo')
             .lean();
@@ -87,16 +94,17 @@ router.get('/posts/transfers/pending', auth, adminOnly, async (req, res) => {
 router.put('/posts/:postId/transfer-status', auth, adminOnly, async (req, res) => {
     try {
         const { postId } = req.params;
-        const { status } = req.body;
-
+        const { secondStatus } = req.body;
+        const { secondRejectionReason } = req.body;
         const post = await Post.findById(postId);
         if (!post) return res.status(404).json({ message: 'Post not found' });
 
         // Update the status
-        post.status = status;
+        post.secondStatus = secondStatus;
+        post.secondRejectionReason = secondRejectionReason;
         await post.save();
 
-        res.status(200).json({ message: `Transfer ${status} successfully` });
+        res.status(200).json({ message: `Transfer ${secondStatus} successfully` });
     } catch (error) {
         console.error('Error updating transfer status:', error);
         res.status(500).json({ message: 'Error updating transfer status', error: error.message });

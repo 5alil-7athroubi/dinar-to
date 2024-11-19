@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <link rel="stylesheet" href="css/styles.css">
-
+    <link rel="stylesheet" href="css/LogReg.css">
 </head>
 <body>
+<div id="registerFormContainer">
     <h2>Register</h2>
     <form id="registerForm">
         <label for="username">Username:</label>
@@ -27,7 +27,7 @@
         </select><br>
 
         <!-- Bank Info Fields for Tunisia -->
-        <div id="tunisiaBankFields" style="display:none;">
+        <div id="tunisiaBankFields">
             <label>Account Holder Full Name:</label>
             <input type="text" id="accountHolderNameTunisia" name="accountHolderName"><br>
 
@@ -42,7 +42,7 @@
         </div>
 
         <!-- Bank Info Fields for Out-Tunisia -->
-        <div id="outTunisiaBankFields" style="display:none;">
+        <div id="outTunisiaBankFields">
             <label>Select Service:</label>
             <select id="service" name="service">
                 <option value="PayPal">PayPal</option>
@@ -61,6 +61,7 @@
 
         <button type="submit">Register</button>
     </form>
+</div>
     <script src="js/auth.js" defer></script>
 </body>
 </html>
