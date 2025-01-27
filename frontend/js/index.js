@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (userRole === 'admin') {
         document.getElementById('adminLinks').style.display = 'block';
-        document.getElementById('adminmediator').style.display = 'block';
         document.getElementById('adminprofile').style.display = 'block';
     } else if (userRole === 'user') {
         document.getElementById('userLinks').style.display = 'block';
@@ -31,7 +30,8 @@ const allowedOrigins = [
     'http://127.0.0.1:8080',
     'http://localhost:8080',
     'http://192.168.100.104:8080',
-    'http://192.168.0.164:8080'
+    'http://192.168.0.164:8080',
+    'http://192.168.56.1:8080'
 ];
 
 window.addEventListener('message', (event) => {

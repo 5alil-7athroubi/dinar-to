@@ -1,129 +1,156 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const amountDTInput = document.getElementById('amountDT');
-    const amountUSDSpan = document.getElementById('amountUSD');
-    const mediatorSelect = document.getElementById('mediatorSelect'); // Make sure this ID matches HTML
-    const mediatorBankInfoDiv = document.getElementById('mediatorBankInfo');
-    const mediatorDetails = document.getElementById('mediatorDetails');
-    const token = localStorage.getItem('token');
-    const userPlace = localStorage.getItem('userPlace'); // Retrieve user's place
+﻿document.addEventListener("DOMContentLoaded", () => {
+    const amountSelect = document.getElementById("amountSelect");
+    const equivalentAmountInput = document.getElementById("equivalentAmount"); 
+    const paymentButton = document.getElementById("paymentButton");
+    const receiverEmailInput = document.getElementById("receiverEmail");
+    const token = localStorage.getItem("token");
+    const userPlace = localStorage.getItem("userPlace"); // "Tunisia" or "Out Tunisia"
 
-    // Update USD equivalent on DT input change
-    amountDTInput.addEventListener('input', () => {
-        const amountDT = parseFloat(amountDTInput.value) || 0;
-        const conversionRate = 0.32; // Example conversion rate, adjust as needed
-        amountUSDSpan.textContent = `Equivalent in USD: $${(amountDT * conversionRate).toFixed(2)}`;
+    // Exchange rate (adjust if needed)
+    const conversionRate = 0.32; // 1 DT = 0.32 USD (example)
+
+    // Payment links
+    const paymentLinksTunisia = {
+        "50": "https://yourpayment.com/50dt",
+        "100": "https://yourpayment.com/100dt",
+        "200": "https://yourpayment.com/200dt",
+        "400": "https://yourpayment.com/400dt",
+        "700": "https://yourpayment.com/700dt",
+        "1000": "https://yourpayment.com/1000dt"
+    };
+
+    const paymentLinksOutTunisia = {
+        "20": "https://yourpayment.com/20",
+        "50": "https://yourpayment.com/50",
+        "100": "https://yourpayment.com/100",
+        "150": "https://yourpayment.com/150",
+        "200": "https://yourpayment.com/200",
+        "300": "https://yourpayment.com/300"
+    };
+
+    // Select correct payment options based on user location
+    let paymentOptions = userPlace === "Tunisia" ? paymentLinksTunisia : paymentLinksOutTunisia;
+
+    // Populate the dropdown with the correct values
+    amountSelect.innerHTML = "";
+    Object.keys(paymentOptions).forEach(amount => {
+        const option = document.createElement("option");
+        option.value = amount;
+        option.textContent = `${amount} ${userPlace === "Tunisia" ? "DT" : "$"}`;
+        amountSelect.appendChild(option);
     });
 
-    // Populate mediator options based on user place
-    async function populateMediatorOptions() {
-        if (!userPlace) {
-            console.error('User place is not set in localStorage');
-            return;
-        }
-
-        mediatorSelect.innerHTML = '<option value="">Select a Mediator</option>';
-        // Determine the base URL dynamically
-        const baseUrl = window.location.hostname === 'localhost'
-            ? 'http://localhost:5000'
-            : `http://${window.location.hostname}:5000`;
-
-        try {
-            const response = await fetch(`${baseUrl}/mediators`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            if (response.ok) {
-                const mediators = await response.json();
-                mediators.forEach(mediator => {
-                    if (mediator.place === userPlace) { // Only add mediators matching the user's place
-                        mediatorSelect.innerHTML += `<option value="${mediator.username}">${mediator.username}</option>`;
-                    }
-                });
-
-                if (mediatorSelect.options.length === 1) { // If no mediator matches
-                    console.warn('No mediators match the user�s place. Check userPlace or mediator place.');
-                }
-            } else {
-                console.error('Failed to fetch mediators');
-            }
-        } catch (error) {
-            console.error('Error fetching mediators:', error);
+    // Function to update the equivalent amount in the input field
+    function updateEquivalentAmount() {
+        const selectedAmount = parseFloat(amountSelect.value);
+        if (userPlace === "Tunisia") {
+            equivalentAmountInput.value = `${(selectedAmount * conversionRate).toFixed(2)} USD`;
+        } else {
+            equivalentAmountInput.value = `${(selectedAmount / conversionRate).toFixed(2)} DT`;
         }
     }
 
-    // Fetch mediator bank info on selection change
-    mediatorSelect.addEventListener('change', async () => {
-        const selectedMediator = mediatorSelect.value;
-        if (selectedMediator) {
-            // Determine the base URL dynamically
-        const baseUrl = window.location.hostname === 'localhost'
-            ? 'http://localhost:5000'
-            : `http://${window.location.hostname}:5000`;
-            try {
-                const response = await fetch(`${baseUrl}/mediators/${selectedMediator}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const mediator = await response.json();
+    // Update equivalent amount when selection changes
+    amountSelect.addEventListener("change", updateEquivalentAmount);
 
-                // Display mediator's bank info based on their place
-                mediatorBankInfoDiv.style.display = 'block';
-                mediatorDetails.innerHTML = mediator.place === 'Tunisia'
-                    ? `Account Holder: ${mediator.bankInfo.accountHolderName}<br>
-                       Bank Name: ${mediator.bankInfo.bankName}<br>
-                       Account Number: ${mediator.bankInfo.accountNumber}<br>
-                       Phone Number: ${mediator.bankInfo.phoneNumber}`
-                    : `Service Account Name: ${mediator.bankInfo.serviceAccountName}<br>
-                       Service Email: ${mediator.bankInfo.serviceEmail}<br>
-                       Currency: ${mediator.bankInfo.currency}`;
-            } catch (error) {
-                console.error('Error fetching mediator bank info:', error);
+    // Initialize equivalent amount on page load
+    updateEquivalentAmount();
+
+    // ✅ Function to validate receiver email before proceeding
+    async function validateReceiverEmail(email) {
+        const baseUrl = window.location.hostname === "localhost"
+            ? "http://localhost:5000"
+            : `http://${window.location.hostname}:5000`;
+
+        try {
+            const response = await fetch(`${baseUrl}/users/find?email=${email}`, {
+                method: "GET",
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            if (!response.ok) {
+                return null; // Receiver not found
             }
-        } else {
-            mediatorBankInfoDiv.style.display = 'none';
-            mediatorDetails.innerHTML = '';
+
+            const receiver = await response.json();
+            return receiver; // Return receiver data if found
+        } catch (error) {
+            console.error("Error validating receiver email:", error);
+            return null;
         }
-    });
+    }
 
-    // Populate mediator options on page load
-    populateMediatorOptions();
+    // ✅ Function to process payment & validate receiver
+    async function processPayment() {
+        const selectedAmount = parseFloat(amountSelect.value);
+        const paymentLink = paymentOptions[selectedAmount];
+        const receiverEmail = receiverEmailInput.value.trim();
 
-    // Handle form submission
-    document.getElementById('postForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const formData = new FormData();
-        formData.append('amountDT', amountDTInput.value);
-        formData.append('amountUSD', amountUSDSpan.textContent.replace('Equivalent in USD: $', ''));
-        formData.append('receiverEmail', document.getElementById('receiverEmail').value);
-        formData.append('mediatorUsername', mediatorSelect.value);
-
-        const paymentReceipt = document.getElementById('paymentReceipt').files[0];
-        if (paymentReceipt) {
-            formData.append('paymentReceipt', paymentReceipt);
+        if (!receiverEmail) {
+            alert("Please enter the receiver's email.");
+            return;
         }
-          // Determine the base URL dynamically
-        const baseUrl = window.location.hostname === 'localhost'
-            ? 'http://localhost:5000'
+
+        // Validate receiver email
+        const receiver = await validateReceiverEmail(receiverEmail);
+        if (!receiver) {
+            alert("Receiver email not found in the system.");
+            return;
+        }
+
+        // Ensure the receiver has a different place than the sender
+        if (receiver.place === userPlace) {
+            alert("Receiver must be from a different place than the sender.");
+            return;
+        }
+
+        // Calculate equivalent amount
+        const equivalentAmount =
+            userPlace === "Tunisia"
+                ? (selectedAmount * conversionRate).toFixed(2) // DT to USD
+                : (selectedAmount / conversionRate).toFixed(2); // USD to DT
+
+        const formData = {
+            amountDT: userPlace === "Tunisia" ? selectedAmount : equivalentAmount,
+            amountUSD: userPlace !== "Tunisia" ? selectedAmount : equivalentAmount,
+            receiverEmail: receiverEmail,
+            status: "pending", // Default status
+            createdAt: new Date().toISOString() // Match the schema's createdAt field
+        };
+
+        const baseUrl = window.location.hostname === "localhost"
+            ? "http://localhost:5000"
             : `http://${window.location.hostname}:5000`;
+
         try {
             const response = await fetch(`${baseUrl}/posts`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` },
-                body: formData
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
             });
 
             if (response.ok) {
-                alert('Post submitted successfully');
-                document.getElementById('postForm').reset();
-                mediatorBankInfoDiv.style.display = 'none';
-                amountUSDSpan.textContent = 'Equivalent in USD: $0.00';
+                // Open payment link in a new tab after ensuring post is saved
+                setTimeout(() => {
+                    window.open(paymentLink, "_blank");
+                    window.parent.location.reload();
+                }, 500);
             } else {
                 const errorData = await response.json();
                 alert(`Failed to submit post: ${errorData.message}`);
             }
         } catch (error) {
-            alert('An error occurred while submitting the post');
-            console.error('Error:', error);
+            alert("An error occurred while submitting the post");
+            console.error("Error:", error);
         }
+    }
+
+    // ✅ Set the button to call processPayment when clicked
+    paymentButton.addEventListener("click", (e) => {
+        e.preventDefault(); // Prevent default link behavior
+        processPayment();
     });
 });

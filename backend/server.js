@@ -8,7 +8,6 @@ const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const postRoutes = require('./routes/posts');
 const userRoutes = require('./routes/users');
-const mediatorRoutes = require('./routes/mediators');
 
 dotenv.config();
 
@@ -24,7 +23,6 @@ app.use('/auth', authRoutes);
 app.use('/posts', postRoutes);
 app.use('/admin', adminRoutes);
 app.use('/users', userRoutes);       // Registering the /users route
-app.use('/mediators', mediatorRoutes); // Registering the /mediators route
 // Default route for the root URL
 app.get('/', (req, res) => {
   res.send('Welcome to the DINAR Backend Server');

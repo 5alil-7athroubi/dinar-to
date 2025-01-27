@@ -1,25 +1,28 @@
-const express = require('express');
+﻿const express = require('express');
 const { auth, adminOnly } = require('../middleware/auth');
 const User = require('../models/User');
 const Post = require('../models/Post');
-const Mediator = require('../models/Mediator');
 const router = express.Router();
 
-// Get pending posts with detailed info
+// ✅ **Get Pending Posts with Detailed Info (No Mediators)**
 router.get('/posts/pending', auth, adminOnly, async (req, res) => {
     try {
         const posts = await Post.find({ status: 'pending' })
-            .populate('userId', 'username email place bankInfo') // User details
-            .lean(); // Makes the documents plain objects
+            .populate('userId', 'username email place bankInfo')
+            .select('amountDT amountUSD receiverEmail createdAt secondCreatedAt') // ✅ Ensures receiverEmail is included
+            .lean();
+        // ✅ Ensure `receiverEmail` exists for all posts
+        posts.forEach(post => {
+            post.receiverEmail = post.receiverEmail || "N/A";
+        });
+        // Fetch receivers in one query
+        const receiverEmails = posts.map(post => post.receiverEmail).filter(email => email);
+        const receivers = await User.find({ email: { $in: receiverEmails } }).lean();
 
-        // Fetch additional details for receiver and mediator
-        for (const post of posts) {
-            const receiver = await User.findOne({ email: post.receiverEmail });
-            const mediator = await Mediator.findOne({ username: post.mediatorUsername });
-
-            post.receiver = receiver;
-            post.mediator = mediator;
-        }
+        // Assign fetched receivers to posts
+        posts.forEach(post => {
+            post.receiver = receivers.find(r => r.email === post.receiverEmail) || null;
+        });
 
         res.json(posts);
     } catch (error) {
@@ -27,6 +30,8 @@ router.get('/posts/pending', auth, adminOnly, async (req, res) => {
         res.status(500).json({ message: 'Error fetching pending posts' });
     }
 });
+
+// ✅ **Approve or Reject a Post**
 router.put('/posts/:postId', auth, adminOnly, async (req, res) => {
     try {
         const { postId } = req.params;
@@ -40,7 +45,7 @@ router.put('/posts/:postId', auth, adminOnly, async (req, res) => {
             return res.status(404).json({ message: 'Post not found' });
         }
 
-        // Update the status and optionally the rejection reason
+        // Update status and optionally set rejection reason
         post.status = status;
         if (status === 'rejected' && rejectionReason) {
             post.rejectionReason = rejectionReason;
@@ -56,29 +61,27 @@ router.put('/posts/:postId', auth, adminOnly, async (req, res) => {
     }
 });
 
-// Route to get all posts with pending transfers
-
+// ✅ **Get All Posts with Pending Transfers**
 router.get('/posts/transfers/pending', auth, adminOnly, async (req, res) => {
     try {
-        // Find posts with 'transfer_pending' status and populate primary user info
+        // Find posts with 'transfer_pending' status and populate user info
         const posts = await Post.find({ secondStatus: 'pending' })
             .populate('userId', 'username email place bankInfo')
             .populate('transferringUserId', 'username email place bankInfo')
+            .select('amountDT amountUSD receiverEmail secondReceiverEmail createdAt secondCreatedAt') // ✅ Ensure emails are included
             .lean();
 
-        for (const post of posts) {
-            // Fetch and assign primary receiver details
-            post.receiver = await User.findOne({ email: post.receiverEmail }).lean();
-            
-            // Fetch and assign primary mediator details
-            post.mediator = await Mediator.findOne({ username: post.mediatorUsername }).lean();
-            
-            // Fetch and assign secondary receiver details
-            post.secondReceiver = await User.findOne({ email: post.secondReceiverEmail }).lean();
-            
-            // Fetch and assign secondary mediator details
-            post.secondMediator = await Mediator.findOne({ username: post.secondMediatorUsername }).lean();
-        }
+        // Fetch receivers in one query
+        const receiverEmails = posts.map(post => post.receiverEmail).filter(email => email);
+        const secondReceiverEmails = posts.map(post => post.secondReceiverEmail).filter(email => email);
+        const allReceiverEmails = [...new Set([...receiverEmails, ...secondReceiverEmails])]; // Remove duplicates
+        const receivers = await User.find({ email: { $in: allReceiverEmails } }).lean();
+
+        // Assign fetched receivers to posts
+        posts.forEach(post => {
+            post.receiver = receivers.find(r => r.email === post.receiverEmail) || null;
+            post.secondReceiver = receivers.find(r => r.email === post.secondReceiverEmail) || null;
+        });
 
         res.json(posts);
     } catch (error) {
@@ -87,21 +90,18 @@ router.get('/posts/transfers/pending', auth, adminOnly, async (req, res) => {
     }
 });
 
-
-
-
-// Route to update transfer status
+// ✅ **Update Transfer Status**
 router.put('/posts/:postId/transfer-status', auth, adminOnly, async (req, res) => {
     try {
         const { postId } = req.params;
-        const { secondStatus } = req.body;
-        const { secondRejectionReason } = req.body;
+        const { secondStatus, secondRejectionReason } = req.body;
+
         const post = await Post.findById(postId);
         if (!post) return res.status(404).json({ message: 'Post not found' });
 
-        // Update the status
+        // Update the second status
         post.secondStatus = secondStatus;
-        post.secondRejectionReason = secondRejectionReason;
+        post.secondRejectionReason = secondRejectionReason || null; // ✅ Prevents undefined errors
         await post.save();
 
         res.status(200).json({ message: `Transfer ${secondStatus} successfully` });
@@ -111,23 +111,4 @@ router.put('/posts/:postId/transfer-status', auth, adminOnly, async (req, res) =
     }
 });
 
-// Add new mediator
-router.post('/mediators', auth, adminOnly, async (req, res) => {
-    try {
-        const { username, email, place, bankInfo } = req.body;
-
-        const newMediator = new Mediator({
-            username,
-            email,
-            place,
-            bankInfo
-        });
-
-        await newMediator.save();
-        res.status(201).json({ message: 'Mediator added successfully' });
-    } catch (error) {
-        console.error('Error adding mediator:', error);
-        res.status(500).json({ message: 'Error adding mediator', error: error.message });
-    }
-});
 module.exports = router;

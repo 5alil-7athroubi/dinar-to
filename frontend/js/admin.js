@@ -93,58 +93,53 @@ function displayPendingPosts(posts) {
     posts.forEach(post => {
         const postDiv = document.createElement('div');
         postDiv.className = 'post';
-
-        // User, Receiver, Mediator, and Screenshot Details
+        // ✅ Updated amount display to prevent `undefined`
         postDiv.innerHTML = `
             <h3>Post by ${post.userId.username} (${post.userId.email})</h3>
             <p><strong>Amount:</strong> ${post.amountDT} DT ($${post.amountUSD} USD)</p>
-
             <h4>User Details:</h4>
             <p><strong>Email:</strong> ${post.userId.email}</p>
             <p><strong>Bank Info:</strong> ${post.userId.bankInfo.paymentMethod ? post.userId.bankInfo.paymentMethod : ''}</p>
-            ${post.userId.place === 'Tunisia' ? `
-                <p>Account Holder: ${post.userId.bankInfo.accountHolderName}</p>
-                <p>Bank Name: ${post.userId.bankInfo.bankName}</p>
-                <p>Account Number: ${post.userId.bankInfo.accountNumber}</p>
-                <p>Phone Number: ${post.userId.bankInfo.phoneNumber}</p>
-            ` : `
-                <p>Service Account Name: ${post.userId.bankInfo.serviceAccountName}</p>
-                <p>Service Email: ${post.userId.bankInfo.serviceEmail}</p>
-                <p>Currency: ${post.userId.bankInfo.currency}</p>
-            `}
+            ${
+                post.userId.place === 'Tunisia'
+                ? `
+                    <p>Account Holder: ${post.userId.bankInfo.accountHolderName}</p>
+                    <p>Bank Name: ${post.userId.bankInfo.bankName}</p>
+                    <p>Account Number: ${post.userId.bankInfo.accountNumber}</p>
+                    <p>Phone Number: ${post.userId.bankInfo.phoneNumber}</p>
+                `
+                : `
+                    <p>Service Account Name: ${post.userId.bankInfo.serviceAccountName}</p>
+                    <p>Service Email: ${post.userId.bankInfo.serviceEmail}</p>
+                    <p>Currency: ${post.userId.bankInfo.currency}</p>
+                `
+            }
 
             <h4>Receiver Details:</h4>
-            <p><strong>Email:</strong> ${post.receiver ? post.receiver.email : 'N/A'}</p>
-            ${post.receiver && post.receiver.place === 'Tunisia' ? `
-                <p>Account Holder: ${post.receiver.bankInfo.accountHolderName}</p>
-                <p>Bank Name: ${post.receiver.bankInfo.bankName}</p>
-                <p>Account Number: ${post.receiver.bankInfo.accountNumber}</p>
-                <p>Phone Number: ${post.receiver.bankInfo.phoneNumber}</p>
-            ` : post.receiver ? `
-                <p>Service Account Name: ${post.receiver.bankInfo.serviceAccountName}</p>
-                <p>Service Email: ${post.receiver.bankInfo.serviceEmail}</p>
-                <p>Currency: ${post.receiver.bankInfo.currency}</p>
-            ` : ''}
+            <p><strong>Email:</strong> ${post.receiverEmail ? post.receiverEmail : 'N/A'}</p>
+            ${
+                post.receiver 
+                ? post.receiver.bankInfo 
+                    ? post.receiver.place === 'Tunisia'
+                        ? `
+                            <p>Account Holder: ${post.receiver.bankInfo.accountHolderName || 'N/A'}</p>
+                            <p>Bank Name: ${post.receiver.bankInfo.bankName || 'N/A'}</p>
+                            <p>Account Number: ${post.receiver.bankInfo.accountNumber || 'N/A'}</p>
+                            <p>Phone Number: ${post.receiver.bankInfo.phoneNumber || 'N/A'}</p>
+                        `
+                        : `
+                            <p>Service Account Name: ${post.receiver.bankInfo.serviceAccountName || 'N/A'}</p>
+                            <p>Service Email: ${post.receiver.bankInfo.serviceEmail || 'N/A'}</p>
+                            <p>Currency: ${post.receiver.bankInfo.currency || 'N/A'}</p>
+                        `
+                    : `<p>No bank information available.</p>` // ✅ New fallback if bankInfo is missing
+                : `<p>No receiver details available.</p>` // ✅ Fallback if receiver is missing
+            }
 
-            <h4>Mediator Details:</h4>
-            <p><strong>Username:</strong> ${post.mediator ? post.mediator.username : 'N/A'}</p>
-            ${post.mediator && post.mediator.place === 'Tunisia' ? `
-                <p>Account Holder: ${post.mediator.bankInfo.accountHolderName}</p>
-                <p>Bank Name: ${post.mediator.bankInfo.bankName}</p>
-                <p>Account Number: ${post.mediator.bankInfo.accountNumber}</p>
-                <p>Phone Number: ${post.mediator.bankInfo.phoneNumber}</p>
-            ` : post.mediator ? `
-                <p>Service Account Name: ${post.mediator.bankInfo.serviceAccountName}</p>
-                <p>Service Email: ${post.mediator.bankInfo.serviceEmail}</p>
-                <p>Currency: ${post.mediator.bankInfo.currency}</p>
-            ` : ''}
-
-            <h4>Payment Receipt:</h4>
-            <img src="${post.paymentReceipt ? `${window.location.hostname === 'localhost' ? 'http://localhost:5000' : `http://${window.location.hostname}:5000`}/${post.paymentReceipt}` : '#'}" alt="Payment Receipt" style="width:200px;height:auto;"><br>
-            <h4>Status: ${post.status}</h4>
+            <p><strong>Created At:</strong> ${new Date(post.createdAt).toLocaleString()}</p>
             ${
                 post.rejectionReason
-                    ? `<p><strong>Rejection Reason:</strong> ${post.rejectionReason}</p>` // Display rejection reason if it exists
+                    ? `<p><strong>Rejection Reason:</strong> ${post.rejectionReason}</p>`
                     : ''
             }
             <button onclick="updatePostStatus('${post._id}', 'approved')">Approve</button>
@@ -153,6 +148,7 @@ function displayPendingPosts(posts) {
         postsContainer.appendChild(postDiv);
     });
 }
+
 
 
 async function updatePostStatus(postId, status, rejectionReason = null) {
@@ -257,22 +253,7 @@ function displayPendingTransfers(posts) {
                 <p>Service Email: ${post.receiver.bankInfo?.serviceEmail || 'N/A'}</p>
                 <p>Currency: ${post.receiver.bankInfo?.currency || 'N/A'}</p>
             ` : ''}
-
-            <h4>Primary Mediator Details:</h4>
-            <p><strong>Username:</strong> ${post.mediator?.username || post.mediatorUsername || 'N/A'}</p>
-            ${post.mediator && post.mediator.place === 'Tunisia' ? `
-                <p>Account Holder: ${post.mediator.bankInfo?.accountHolderName || 'N/A'}</p>
-                <p>Bank Name: ${post.mediator.bankInfo?.bankName || 'N/A'}</p>
-                <p>Account Number: ${post.mediator.bankInfo?.accountNumber || 'N/A'}</p>
-                <p>Phone Number: ${post.mediator.bankInfo?.phoneNumber || 'N/A'}</p>
-            ` : post.mediator ? `
-                <p>Service Account Name: ${post.mediator.bankInfo?.serviceAccountName || 'N/A'}</p>
-                <p>Service Email: ${post.mediator.bankInfo?.serviceEmail || 'N/A'}</p>
-                <p>Currency: ${post.mediator.bankInfo?.currency || 'N/A'}</p>
-            ` : ''}
-
-            <h4>Primary Payment Receipt:</h4>
-           <img src="${post.paymentReceipt ? `${window.location.hostname === 'localhost' ? 'http://localhost:5000' : `http://${window.location.hostname}:5000`}/${post.paymentReceipt}` : '#'}" alt="Payment Receipt" style="width:200px;height:auto;"><br>
+            <p><strong>Created At:</strong> ${new Date(post.createdAt).toLocaleString()}</p>
             <hr>
 
             <!-- Secondary (Transfer) Details -->
@@ -303,22 +284,8 @@ function displayPendingTransfers(posts) {
                 <p>Service Email: ${post.secondReceiver.bankInfo?.serviceEmail || 'N/A'}</p>
                 <p>Currency: ${post.secondReceiver.bankInfo?.currency || 'N/A'}</p>
             ` : ''}
+            <p><strong>Created At:</strong> ${new Date(post.secondCreatedAt).toLocaleString()}</p>
 
-            <h4>Secondary Mediator Details:</h4>
-            <p><strong>Username:</strong> ${post.secondMediator ? post.secondMediator.username : post.secondMediatorUsername || 'N/A'}</p>
-            ${post.secondMediator && post.secondMediator.place === 'Tunisia' ? `
-                <p>Account Holder: ${post.secondMediator.bankInfo?.accountHolderName || 'N/A'}</p>
-                <p>Bank Name: ${post.secondMediator.bankInfo?.bankName || 'N/A'}</p>
-                <p>Account Number: ${post.secondMediator.bankInfo?.accountNumber || 'N/A'}</p>
-                <p>Phone Number: ${post.secondMediator.bankInfo?.phoneNumber || 'N/A'}</p>
-            ` : post.secondMediator ? `
-                <p>Service Account Name: ${post.secondMediator.bankInfo?.serviceAccountName || 'N/A'}</p>
-                <p>Service Email: ${post.secondMediator.bankInfo?.serviceEmail || 'N/A'}</p>
-                <p>Currency: ${post.secondMediator.bankInfo?.currency || 'N/A'}</p>
-            ` : ''}
-
-            <h4>Secondary Payment Receipt:</h4>
-            <img src="${post.secondTransferReceipt ? `${window.location.hostname === 'localhost' ? 'http://localhost:5000' : `http://${window.location.hostname}:5000`}/${post.secondTransferReceipt}` : '#'}" alt="Payment Receipt" style="width:200px;height:auto;"><br>
             ${
                 post.secondRejectionReason
                     ? `<p><strong>Transfer Rejection Reason:</strong> ${post.secondRejectionReason}</p>` // Display rejection reason if it exists

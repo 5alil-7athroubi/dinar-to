@@ -1,25 +1,37 @@
+﻿const baseUrl = window.location.hostname === "localhost"
+    ? "http://localhost:5000"
+    : `http://${window.location.hostname}:5000`;
+
+// Function to extract userId from JWT token
+function getUserIdFromToken() {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+
+    try {
+        const payload = JSON.parse(atob(token.split(".")[1])); 
+        return payload.userId || null;
+    } catch (error) {
+        console.error("Error decoding token:", error);
+        return null;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
-    const userPlace = localStorage.getItem('userPlace');
-
-    if (!token) {
-        alert('You need to log in to access the dashboard');
-        window.location.href = 'login.html';
-        return;
-    }
-    console.log("Fetching transferable posts...");
     fetchTransferablePosts(token);
 });
 
 async function fetchTransferablePosts(token) {
-      // Determine the base URL dynamically
-        const baseUrl = window.location.hostname === 'localhost'
-            ? 'http://localhost:5000'
-            : `http://${window.location.hostname}:5000`;
+    if (!token) {
+        alert("You need to log in to access the dashboard.");
+        window.location.href = "login.html";
+        return;
+    }
+
     try {
         const response = await fetch(`${baseUrl}/posts/transferable`, {
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${token}` }
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` }
         });
 
         if (response.ok) {
@@ -27,11 +39,11 @@ async function fetchTransferablePosts(token) {
             console.log("Transferable posts fetched:", posts);
             displayTransferablePosts(posts);
         } else {
-            alert('Failed to load transferable posts');
+            alert("Failed to load transferable posts.");
         }
     } catch (error) {
-        console.error('Error fetching transferable posts:', error);
-        alert('An error occurred while fetching posts');
+        console.error("Error fetching transferable posts:", error);
+        alert("An error occurred while fetching posts.");
     }
 }
 
@@ -45,27 +57,61 @@ function displayTransferablePosts(posts) {
         return;
     }
 
-posts.forEach(post => {
-    const postDiv = document.createElement('div');
-    postDiv.className = 'post';
-    
-         // Safely handle missing userId
-         const username = post.userId?.username || 'Unknown';
-         const email = post.userId?.email || 'Unknown';
-     
-         postDiv.innerHTML = `
-             <h3>Post by ${username}</h3>
-             <p><strong>Amount:</strong> ${post.amountDT} DT ($${post.amountUSD} USD)</p>
-             <button onclick="openTransferForm('${post._id}', ${post.amountDT}, ${post.amountUSD}, this)">Transfer</button>
-         `;
-         postsContainer.appendChild(postDiv);
-     });
+    posts.forEach(post => {
+        const postDiv = document.createElement('div');
+        postDiv.className = 'post';
 
+        const username = post.userId?.username || 'Unknown';
+
+        postDiv.innerHTML = `
+            <h3>Post by ${username}</h3>
+            <p><strong>Amount:</strong> ${post.amountDT} DT ($${post.amountUSD} USD)</p>
+            <button onclick="openTransferForm('${post._id}', ${post.amountDT}, ${post.amountUSD}, this)">Transfer</button>
+        `;
+        postsContainer.appendChild(postDiv);
+    });
 }
 
 function openTransferForm(postId, amountDT, amountUSD, transferButton) {
     const existingForm = document.getElementById('dynamicTransferForm');
     if (existingForm) existingForm.remove();
+
+    const userPlace = localStorage.getItem("userPlace"); 
+    const token = localStorage.getItem("token"); 
+    const transferringUserId = getUserIdFromToken(); 
+
+    if (!transferringUserId) {
+        alert("You must log in again to perform a transfer.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    const paymentLinksTunisia = {
+        "20": "https://yourpayment.com/20",
+        "50": "https://yourpayment.com/50dt",
+        "100": "https://yourpayment.com/100dt",
+        "200": "https://yourpayment.com/200dt",
+        "400": "https://yourpayment.com/400dt",
+        "700": "https://yourpayment.com/700dt",
+        "1000": "https://yourpayment.com/1000dt"
+    };
+
+    const paymentLinksOutTunisia = {
+        "20": "https://yourpayment.com/20",
+        "50": "https://yourpayment.com/50",
+        "100": "https://yourpayment.com/100",
+        "150": "https://yourpayment.com/150",
+        "200": "https://yourpayment.com/200",
+        "300": "https://yourpayment.com/300"
+    };
+
+    let paymentLink = "#"; 
+
+    if (userPlace === "Tunisia" && paymentLinksOutTunisia[amountUSD]) {
+        paymentLink = paymentLinksOutTunisia[amountUSD];
+    } else if (userPlace !== "Tunisia" && paymentLinksTunisia[amountDT]) {
+        paymentLink = paymentLinksTunisia[amountDT];
+    }
 
     const transferFormContainer = document.createElement('div');
     transferFormContainer.id = 'dynamicTransferForm';
@@ -75,169 +121,95 @@ function openTransferForm(postId, amountDT, amountUSD, transferButton) {
         <h3>Transfer Form</h3>
         <form id="transferForm">
             <input type="hidden" id="transferPostId" value="${postId}">
-            <p><strong>Selected Post Amount:</strong> ${amountDT} DT ($${amountUSD} USD)</p>
             
+            <label for="fixedAmountDT">Amount (DT):</label>
+            <input type="text" id="fixedAmountDT" value="${amountDT} DT" readonly><br>
+
+            <label for="fixedAmountUSD">Amount (USD):</label>
+            <input type="text" id="fixedAmountUSD" value="${amountUSD} USD" readonly><br>
+
             <label for="secondReceiverEmail">Second Receiver Email:</label>
             <input type="email" id="secondReceiverEmail" required><br>
 
-            <label for="secondMediator">Select Second Mediator:</label>
-            <select id="secondMediator" required></select><br>
-
-            <div id="mediatorBankInfo" style="display: none;">
-                <h4>Mediator Bank Info:</h4>
-                <p id="mediatorDetails"></p>
-            </div>
-
-            <label for="transferReceipt">Upload Transfer Receipt:</label>
-            <input type="file" id="transferReceipt" accept="image/*"><br><br>
-
-            <button type="submit">Submit Transfer</button>
+            <button type="submit">Proceed to Payment</button>
         </form>
     `;
-
     transferButton.parentElement.appendChild(transferFormContainer);
 
-    const transferForm = document.getElementById('transferForm');
-    if (transferForm) {
-        transferForm.addEventListener('submit', submitTransferForm);
-    }
+    const transferForm = document.getElementById("transferForm");
+    transferForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-    populateSecondMediatorOptions();
-}
+        const secondReceiverEmail = document.getElementById("secondReceiverEmail").value.trim();
+        if (!secondReceiverEmail) {
+            alert("Please enter the receiver's email.");
+            return;
+        }
 
-async function populateSecondMediatorOptions() {
-    const token = localStorage.getItem('token');
-    const userPlace = localStorage.getItem('userPlace');
-    const mediatorSelect = document.getElementById('secondMediator');
+        // ✅ Validate receiver before proceeding
+        const receiver = await validateReceiverEmail(secondReceiverEmail);
+        if (!receiver) {
+            alert("Receiver email not found in the system.");
+            return;
+        }
 
-    if (!mediatorSelect) return;
+        if (receiver.place === userPlace) {
+            alert("Receiver must be from a different place than the sender.");
+            return;
+        }
 
-    mediatorSelect.innerHTML = '<option value="">Select a Mediator</option>';
-    // Determine the base URL dynamically
-        const baseUrl = window.location.hostname === 'localhost'
-            ? 'http://localhost:5000'
-            : `http://${window.location.hostname}:5000`;
+        const formData = {
+            secondReceiverEmail: secondReceiverEmail,
+            transferringUserId: transferringUserId,
+            amountDT: amountDT,
+            amountUSD: amountUSD,
+            secondStatus: "pending",
+            secondCreatedAt: new Date().toISOString(),
+            status: null
+        };
 
-    try {
-        const response = await fetch(`${baseUrl}/mediators`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (response.ok) {
-            const mediators = await response.json();
-            mediators.forEach(mediator => {
-                if (mediator.place === userPlace) {
-                    mediatorSelect.innerHTML += `<option value="${mediator.username}">${mediator.username}</option>`;
-                }
+        try {
+            const response = await fetch(`${baseUrl}/posts/${postId}/transfer`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
             });
-            mediatorSelect.addEventListener('change', handleMediatorChange);
-        } else {
-            console.error('Failed to fetch mediators');
+
+            if (response.ok) {
+                setTimeout(() => {
+                    window.open(paymentLink, "_blank");
+                    window.parent.location.reload();
+                }, 500);
+            } else {
+                const errorData = await response.json();
+                alert(`Failed to submit transfer: ${errorData.message}`);
+            }
+        } catch (error) {
+            alert("An error occurred while submitting the transfer.");
+            console.error("Error:", error);
         }
-    } catch (error) {
-        console.error('Error fetching mediators:', error);
-    }
-}
-
-function submitTransferForm(e) {
-    e.preventDefault();
-
-    const postId = document.getElementById('transferPostId').value;
-    const secondReceiverEmail = document.getElementById('secondReceiverEmail').value;
-    const secondMediatorUsername = document.getElementById('secondMediator').value;
-    const transferReceipt = document.getElementById('transferReceipt').files[0];
-
-    const formData = new FormData();
-    formData.append('secondReceiverEmail', secondReceiverEmail);
-    formData.append('secondMediatorUsername', secondMediatorUsername);
-    formData.append('transferReceipt', transferReceipt);
-
-    const token = localStorage.getItem('token');
-    // Determine the base URL dynamically
-        const baseUrl = window.location.hostname === 'localhost'
-            ? 'http://localhost:5000'
-            : `http://${window.location.hostname}:5000`;
-
-    fetch(`${baseUrl}/posts/${postId}/transfer`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
-    })
-    .then(response => {
-        if (response.ok) {
-            alert('Transfer submitted successfully');
-            document.getElementById('transferForm').reset();
-            document.getElementById('dynamicTransferForm').style.display = 'none';
-            // Check if loaded within an iframe
-                 if (window.self !== window.top) {
-                     // Use the current hostname to construct the base URL dynamically
-                     const currentHost = window.location.hostname;
-                     const redirectUrl = `http://${currentHost}:8080/index.html`;
-                     // Reload the parent window (index.html) from within an iframe
-                     window.parent.location.href = redirectUrl;
-                 } else {
-                     // If not in an iframe, reload the current window to index.html
-                     const currentHost = window.location.hostname;
-                     window.location.href = `http://${currentHost}:8080/index.html`;
-                 }
-        } else {
-            response.json().then(data => alert(`Failed to submit transfer: ${data.message}`));
-        }
-    })
-    .catch(error => {
-        alert('An error occurred while submitting the transfer');
-        console.error('Error:', error);
     });
 }
 
-
-function handleMediatorChange() {
-    const selectedMediator = document.getElementById('secondMediator').value;
-    if (selectedMediator) {
-        fetchMediatorBankInfo(selectedMediator);
-    } else {
-        clearMediatorBankInfo();
-    }
-}
-
-async function fetchMediatorBankInfo(selectedMediator) {
-    const token = localStorage.getItem('token');
-    const mediatorBankInfoDiv = document.getElementById('mediatorBankInfo');
-    const mediatorDetails = document.getElementById('mediatorDetails');
-
-    if (!mediatorBankInfoDiv || !mediatorDetails) return;
-     // Determine the base URL dynamically
-        const baseUrl = window.location.hostname === 'localhost'
-            ? 'http://localhost:5000'
-            : `http://${window.location.hostname}:5000`;
-
+// ✅ **Function to Validate Receiver Email**
+async function validateReceiverEmail(email) {
     try {
-        const response = await fetch(`${baseUrl}/mediators/${selectedMediator}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
+        const response = await fetch(`${baseUrl}/users/find?email=${email}`, {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
         });
 
-        if (response.ok) {
-            const mediator = await response.json();
-            mediatorBankInfoDiv.style.display = 'block';
-            mediatorDetails.innerHTML = mediator.place === 'Tunisia'
-                ? `Account Holder: ${mediator.bankInfo.accountHolderName}<br>
-                   Bank Name: ${mediator.bankInfo.bankName}<br>
-                   Account Number: ${mediator.bankInfo.accountNumber}<br>
-                   Phone Number: ${mediator.bankInfo.phoneNumber}`
-                : `Service Account Name: ${mediator.bankInfo.serviceAccountName}<br>
-                   Service Email: ${mediator.bankInfo.serviceEmail}<br>
-                   Currency: ${mediator.bankInfo.currency}`;
-        } else {
-            console.error('Failed to fetch mediator bank info');
+        if (!response.ok) {
+            return null; // Receiver not found
         }
-    } catch (error) {
-        console.error('Error fetching mediator bank info:', error);
-    }
-}
 
-function clearMediatorBankInfo() {
-    const mediatorBankInfoDiv = document.getElementById('mediatorBankInfo');
-    const mediatorDetails = document.getElementById('mediatorDetails');
-    mediatorBankInfoDiv.style.display = 'none';
-    mediatorDetails.innerHTML = '';
+        const receiver = await response.json();
+        return receiver; // Return receiver data if found
+    } catch (error) {
+        console.error("Error validating receiver email:", error);
+        return null;
+    }
 }

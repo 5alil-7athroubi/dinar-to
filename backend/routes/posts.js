@@ -1,37 +1,21 @@
-const express = require('express');
-const multer = require('multer');
+﻿const express = require('express');
 const { auth } = require('../middleware/auth');
 const Post = require('../models/Post');
 const User = require('../models/User');
 const router = express.Router();
 
-// Set up storage for uploaded files (Ensure this code block is not duplicated)
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Ensure the "uploads" directory exists
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + '-' + file.originalname);
-    }
-});
-
-const upload = multer({ storage });
-
-// Create new post with file upload
-router.post('/', auth, upload.single('paymentReceipt'), async (req, res) => {
+// ✅ **Create a New Post**
+router.post('/', auth, async (req, res) => {
     try {
-        const { amountDT, amountUSD, receiverEmail, mediatorUsername } = req.body;
+        const { amountDT, amountUSD, receiverEmail } = req.body;
         const userId = req.user.userId;
 
         const newPost = new Post({
-            content: `Post from ${userId}`, // Placeholder content; modify as needed
+            content: `Post from ${userId}`,
             amountDT,
             amountUSD,
             receiverEmail,
-            mediatorUsername,
-            userId,
-            paymentReceipt: req.file ? req.file.path : null // Save file path if uploaded
+            userId
         });
 
         await newPost.save();
@@ -42,24 +26,30 @@ router.post('/', auth, upload.single('paymentReceipt'), async (req, res) => {
     }
 });
 
-// Fetch transferable posts (other users, different place, approved status)
+// ✅ **Fetch Transferable Posts (Hides Transferred Posts)**
 router.get('/transferable', auth, async (req, res) => {
     try {
         const currentUser = await User.findById(req.user.userId);
-        console.log('Current User:', currentUser);
         if (!currentUser) return res.status(404).json({ message: 'User not found' });
 
-        const transferablePosts = await Post.find({
-            userId: { $ne: currentUser._id },   // Not the current user
-            status: 'approved'
-        })
-        .populate('userId', 'username email place') // Get post creator details
-        .lean();
-        console.log('Transferable Posts Before Filtering:', transferablePosts);
+        // ✅ **Ensure users see posts only from different places**
+        let requiredPlace = currentUser.place === "Out-Tunisia" ? "Tunisia" : "Out-Tunisia";
 
-        // Filter posts by place
-        const filteredPosts = transferablePosts.filter(post => post.userId.place !== currentUser.place);
-        console.log('Filtered Posts:', filteredPosts);
+        const transferablePosts = await Post.find({
+            status: 'approved',
+            secondReceiverEmail: { $exists: false },
+            transferringUserId: { $exists: false }
+        })
+        .populate({
+            path: 'userId',
+            select: 'username email place',
+            match: { place: requiredPlace } // ✅ Only show posts from the required place
+        })
+        .lean();
+
+        // ✅ Remove posts where userId is `null`
+        const filteredPosts = transferablePosts.filter(post => post.userId !== null);
+
         res.json(filteredPosts);
     } catch (error) {
         console.error('Error fetching transferable posts:', error);
@@ -67,28 +57,36 @@ router.get('/transferable', auth, async (req, res) => {
     }
 });
 
-// posts.js (or the relevant route file)
-router.post('/:postId/transfer', auth, upload.single('transferReceipt'), async (req, res) => {
+// ✅ **Handle Transfers & Update `status: null`**
+router.post('/:postId/transfer', auth, async (req, res) => {
     try {
         const { postId } = req.params;
-        const { secondReceiverEmail, secondMediatorUsername } = req.body;
+        const { secondReceiverEmail } = req.body;
 
-        // Find the post by ID
         const post = await Post.findById(postId);
         if (!post) return res.status(404).json({ message: 'Post not found' });
 
-        // Update transfer-related fields
-        post.secondReceiverEmail = secondReceiverEmail;
-        post.secondMediatorUsername = secondMediatorUsername;
-        post.transferringUserId = req.user.userId; // Ensure transferringUserId is saved
-        post.secondStatus = 'pending';
+        // 🔹 **Prevent overriding an existing transfer unless rejected**
+        if (post.secondReceiverEmail || post.transferringUserId) {
+            if (post.secondStatus !== "rejected") {
+                return res.status(400).json({ message: "This post has already been transferred and cannot be changed." });
+            }
 
-        // Save the receipt if uploaded
-        if (req.file) {
-            post.secondTransferReceipt = req.file.path;
+            // ✅ **Reset transfer details if retrying after rejection**
+            post.secondReceiverEmail = null;
+            post.transferringUserId = null;
+            post.secondStatus = "pending";
+             post.secondCreatedAt = null; 
         }
 
-        // Save the post with updates
+        post.secondReceiverEmail = secondReceiverEmail;
+        post.transferringUserId = req.user.userId;
+        post.secondStatus = 'pending';
+        post.secondCreatedAt = new Date(); 
+
+        // ✅ **Set `status: null` when transfer is made**
+        post.status = null;
+
         await post.save();
         res.status(200).json({ message: 'Transfer details saved successfully', post });
     } catch (error) {
@@ -96,14 +94,12 @@ router.post('/:postId/transfer', auth, upload.single('transferReceipt'), async (
         res.status(500).json({ message: 'Error saving transfer details' });
     }
 });
-// Fetch archive data
+
+// ✅ **Fetch Archived Data**
 router.get('/archive', auth, async (req, res) => {
     try {
-        const userId = req.user.userId; // This should be user1's ID
+        const userId = req.user.userId;
         const { filter } = req.query;
-
-        console.log('Logged-in User:', userId);
-        console.log('Filter:', filter);
 
         let query = {};
         if (filter === 'pending') {
@@ -130,15 +126,12 @@ router.get('/archive', auth, async (req, res) => {
             };
         }
 
-        console.log('Constructed Query:', query);
-
         const posts = await Post.find(query)
             .populate('userId', 'username')
             .populate('transferringUserId', 'username')
-            .sort({ createdAt: -1 }) 
+            .sort({ createdAt: -1 })
             .lean();
 
-        console.log('Filtered Posts:', posts);
         res.status(200).json(posts);
     } catch (error) {
         console.error('Error fetching archive data:', error);
@@ -146,23 +139,26 @@ router.get('/archive', auth, async (req, res) => {
     }
 });
 
+// ✅ **Cancel a Post (Clears Transfer Details)**
 router.put('/:postId/cancel', auth, async (req, res) => {
     try {
         const { postId } = req.params;
 
-        // Find the post by ID
         const post = await Post.findById(postId);
         if (!post) {
             return res.status(404).json({ message: 'Post not found' });
         }
 
-        // Check if the logged-in user is the creator of the post
         if (post.userId.toString() !== req.user.userId.toString()) {
             return res.status(403).json({ message: 'You are not authorized to cancel this post' });
         }
 
-        // Update the post status to 'cancelled'
+        // ✅ **Clear transfer details when cancelling**
         post.status = 'cancelled';
+        post.secondReceiverEmail = null;
+        post.transferringUserId = null;
+        post.secondStatus = null;
+
         await post.save();
 
         res.status(200).json({ message: 'Post cancelled successfully', post });
@@ -171,7 +167,5 @@ router.put('/:postId/cancel', auth, async (req, res) => {
         res.status(500).json({ message: 'Error cancelling post', error: error.message });
     }
 });
-
-
 
 module.exports = router;
