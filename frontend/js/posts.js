@@ -65,7 +65,7 @@ function displayTransferablePosts(posts) {
 
         postDiv.innerHTML = `
             <h3>Post by ${username}</h3>
-            <p><strong>Amount:</strong> ${post.amountDT} DT ($${post.amountUSD} USD)</p>
+            <p><strong>Amount:</strong> ${post.amountDT} DT ($${post.amountUSD} USD)</p><br>
             <button onclick="openTransferForm('${post._id}', ${post.amountDT}, ${post.amountUSD}, this)">Transfer</button>
         `;
         postsContainer.appendChild(postDiv);
@@ -74,6 +74,17 @@ function displayTransferablePosts(posts) {
 
 function openTransferForm(postId, amountDT, amountUSD, transferButton) {
     const existingForm = document.getElementById('dynamicTransferForm');
+
+    // If the form exists and belongs to the same button, toggle it
+    if (existingForm && existingForm.dataset.postId === postId) {
+        existingForm.classList.toggle("open");
+        if (!existingForm.classList.contains("open")) {
+            setTimeout(() => existingForm.remove(), 500); // Delay removal for animation
+        }
+        return;
+    }
+
+    // Remove any existing form before creating a new one
     if (existingForm) existingForm.remove();
 
     const userPlace = localStorage.getItem("userPlace"); 
@@ -113,20 +124,22 @@ function openTransferForm(postId, amountDT, amountUSD, transferButton) {
         paymentLink = paymentLinksTunisia[amountDT];
     }
 
+    // Create form container
     const transferFormContainer = document.createElement('div');
     transferFormContainer.id = 'dynamicTransferForm';
+    transferFormContainer.dataset.postId = postId;
     transferFormContainer.className = 'transfer-form';
     transferFormContainer.innerHTML = `
         <br><hr>
         <h3>Transfer Form</h3>
         <form id="transferForm">
             <input type="hidden" id="transferPostId" value="${postId}">
-            
+
             <label for="fixedAmountDT">Amount (DT):</label>
-            <input type="text" id="fixedAmountDT" value="${amountDT} DT" readonly><br>
+            <input type="text" id="fixedAmountDT" value="${amountDT} DT" readonly>
 
             <label for="fixedAmountUSD">Amount (USD):</label>
-            <input type="text" id="fixedAmountUSD" value="${amountUSD} USD" readonly><br>
+            <input type="text" id="fixedAmountUSD" value="${amountUSD} USD" readonly>
 
             <label for="secondReceiverEmail">Second Receiver Email:</label>
             <input type="email" id="secondReceiverEmail" required><br>
@@ -134,10 +147,13 @@ function openTransferForm(postId, amountDT, amountUSD, transferButton) {
             <button type="submit">Proceed to Payment</button>
         </form>
     `;
-    transferButton.parentElement.appendChild(transferFormContainer);
 
-    const transferForm = document.getElementById("transferForm");
-    transferForm.addEventListener("submit", async function (e) {
+    // Append under the post
+    transferButton.parentElement.appendChild(transferFormContainer);
+    setTimeout(() => transferFormContainer.classList.add("open"), 10); // Smooth open effect
+
+    // Handle Form Submission
+    document.getElementById("transferForm").addEventListener("submit", async function (e) {
         e.preventDefault();
 
         const secondReceiverEmail = document.getElementById("secondReceiverEmail").value.trim();
@@ -193,6 +209,7 @@ function openTransferForm(postId, amountDT, amountUSD, transferButton) {
         }
     });
 }
+
 
 // ✅ **Function to Validate Receiver Email**
 async function validateReceiverEmail(email) {

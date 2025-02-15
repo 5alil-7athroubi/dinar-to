@@ -6,21 +6,27 @@
     <title>Archive</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
-    <header>
-        <h1>Archive</h1>
-    </header>
+<body onload="fetchArchiveData('all')">
+
+    <h2>Archive</h2>
+
     <main>
         <div class="filter-buttons">
-            <button onclick="fetchArchiveData('all')">All</button>
-            <button onclick="fetchArchiveData('pending')">Pending</button>
-            <button onclick="fetchArchiveData('post-approved')">Post Approved</button>
-            <button onclick="fetchArchiveData('post-rejected')">Post Rejected</button>
-            <button onclick="fetchArchiveData('transfer-approved')">Transfer Approved</button>
-            <button onclick="fetchArchiveData('transfer-rejected')">Transfer Rejected</button>
+            <button onclick="fetchArchiveData('all', 1)">All</button>
+            <button onclick="fetchArchiveData('pending', 1)">Pending</button>
+            <button onclick="fetchArchiveData('post-approved', 1)">Post Approved</button>
+            <button onclick="fetchArchiveData('post-rejected', 1)">Post Rejected</button>
+            <button onclick="fetchArchiveData('transfer-approved', 1)">Transfer Approved</button>
+            <button onclick="fetchArchiveData('transfer-rejected', 1)">Transfer Rejected</button>
+            <button onclick="fetchArchiveData('post-cancelled', 1)">post cancelled</button>
         </div>
         <div id="archiveContainer" class="archive-container">
             <!-- Data will be dynamically loaded here -->
+        </div>
+        <div id="paginationControls">
+            <button id="prevPage" onclick="changePage(-1)" disabled>Previous</button>
+            <span id="pageInfo"></span>
+            <button id="nextPage" onclick="changePage(1)" disabled>Next</button>
         </div>
     </main>
     <script src="js/archive.js" defer></script>

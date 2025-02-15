@@ -1,11 +1,14 @@
-async function fetchArchiveData(filter) {
+let currentPage = 1;
+let totalPages = 1;
+
+async function fetchArchiveData(filter, page = 1, limit = 10) {
     const token = localStorage.getItem('token');
     const baseUrl = window.location.hostname === 'localhost'
         ? 'http://localhost:5000'
         : `http://${window.location.hostname}:5000`;
 
     try {
-        const response = await fetch(`${baseUrl}/posts/archive?filter=${filter}`, {
+        const response = await fetch(`${baseUrl}/posts/archive?filter=${filter}&page=${page}&limit=${limit}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -13,9 +16,10 @@ async function fetchArchiveData(filter) {
         });
 
         if (response.ok) {
-            const data = await response.json();
-            console.log('Fetched Data:', data); // Log the fetched data for debugging
-            displayArchiveData(data, filter);
+            const responseData = await response.json();
+            console.log('Fetched Data:', responseData); // Debugging log
+            displayArchiveData(responseData.data, filter);
+            updatePagination(responseData.currentPage, responseData.totalPages, filter);
         } else {
             const errorData = await response.json();
             console.error('Error:', errorData);
@@ -26,7 +30,6 @@ async function fetchArchiveData(filter) {
     }
 }
 
-
 function displayArchiveData(data, filter) {
     const container = document.getElementById('archiveContainer');
     container.innerHTML = ''; // Clear existing data
@@ -35,18 +38,17 @@ function displayArchiveData(data, filter) {
         container.innerHTML = '<p>No data available.</p>';
         return;
     }
-    // Sort the data by createdAt in descending order
+
     data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
     data.forEach(item => {
         const itemDiv = document.createElement('div');
         itemDiv.className = 'archive-item';
 
-        // Display basic amount details
         let content = `
             <p><strong>Amount:</strong> ${item.amountDT} DT ($${item.amountUSD} USD)</p>
         `;
-       
-        // Handle "Pending" filter
+
         if (filter === 'pending') {
             if (item.status === 'pending') {
                 const username = (item.userId && item.userId.username) ? item.userId.username : 'Unknown';
@@ -64,7 +66,6 @@ function displayArchiveData(data, filter) {
             }
         }
 
-        // Handle "Post Approved" filter
         if (filter === 'post-approved' && item.status === 'approved') {
             const username = (item.userId && item.userId.username) ? item.userId.username : 'Unknown';
             content += `
@@ -72,8 +73,14 @@ function displayArchiveData(data, filter) {
                 <p><strong>Status:</strong> ${item.status}</p>
             `;
         }
+        if (filter === 'post-cancelled' && item.status === 'cancelled') {
+            const username = (item.userId && item.userId.username) ? item.userId.username : 'Unknown';
+            content += `
+                <p><strong>Post by:</strong> ${username}</p>
+                <p><strong>Status:</strong> ${item.status}</p>
+            `;
+        }
 
-        // Handle "Post Rejected" filter
         if (filter === 'post-rejected' && item.status === 'rejected') {
             const username = (item.userId && item.userId.username) ? item.userId.username : 'Unknown';
             content += `
@@ -83,7 +90,6 @@ function displayArchiveData(data, filter) {
             `;
         }
 
-        // Handle "Transfer Approved" filter
         if (filter === 'transfer-approved' && item.secondStatus === 'approved') {
             const transferringUsername = (item.transferringUserId && item.transferringUserId.username) ? item.transferringUserId.username : 'Unknown';
             content += `
@@ -92,7 +98,6 @@ function displayArchiveData(data, filter) {
             `;
         }
 
-        // Handle "Transfer Rejected" filter
         if (filter === 'transfer-rejected' && item.secondStatus === 'rejected') {
             const transferringUsername = (item.transferringUserId && item.transferringUserId.username) ? item.transferringUserId.username : 'Unknown';
             content += `
@@ -102,7 +107,6 @@ function displayArchiveData(data, filter) {
             `;
         }
 
-        // Handle "All" filter
         if (filter === 'all') {
             const postUsername = (item.userId && item.userId.username) ? item.userId.username : 'Unknown';
             const transferUsername = (item.transferringUserId && item.transferringUserId.username) ? item.transferringUserId.username : 'Unknown';
@@ -135,7 +139,24 @@ function displayArchiveData(data, filter) {
     });
 }
 
+function updatePagination(current, total, filter) {
+    currentPage = current;
+    totalPages = total;
 
+    document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+    document.getElementById('prevPage').disabled = currentPage === 1;
+    document.getElementById('nextPage').disabled = currentPage === totalPages;
+
+    document.getElementById('prevPage').onclick = () => changePage(-1, filter);
+    document.getElementById('nextPage').onclick = () => changePage(1, filter);
+}
+
+function changePage(offset, filter) {
+    const newPage = currentPage + offset;
+    if (newPage > 0 && newPage <= totalPages) {
+        fetchArchiveData(filter, newPage);
+    }
+}
 
 
 async function cancelPost(postId) {
@@ -161,4 +182,5 @@ async function cancelPost(postId) {
         console.error('Error cancelling post:', error);
     }
 }
+
 

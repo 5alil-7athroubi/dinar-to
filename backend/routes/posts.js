@@ -95,11 +95,15 @@ router.post('/:postId/transfer', auth, async (req, res) => {
     }
 });
 
-// ✅ **Fetch Archived Data**
+// ✅ **Fetch Archived Data with Pagination**
 router.get('/archive', auth, async (req, res) => {
     try {
         const userId = req.user.userId;
-        const { filter } = req.query;
+        const { filter, page = 1, limit = 10 } = req.query;
+
+        const pageNumber = parseInt(page, 10);
+        const limitNumber = parseInt(limit, 10);
+        const skip = (pageNumber - 1) * limitNumber;
 
         let query = {};
         if (filter === 'pending') {
@@ -113,6 +117,8 @@ router.get('/archive', auth, async (req, res) => {
             query = { userId, status: 'approved' };
         } else if (filter === 'post-rejected') {
             query = { userId, status: 'rejected' };
+        } else if (filter === 'post-cancelled') {
+            query = { userId, status: 'cancelled' };
         } else if (filter === 'transfer-approved') {
             query = { transferringUserId: userId, secondStatus: 'approved' };
         } else if (filter === 'transfer-rejected') {
@@ -126,18 +132,27 @@ router.get('/archive', auth, async (req, res) => {
             };
         }
 
+        const totalItems = await Post.countDocuments(query);
         const posts = await Post.find(query)
             .populate('userId', 'username')
             .populate('transferringUserId', 'username')
             .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limitNumber)
             .lean();
 
-        res.status(200).json(posts);
+        res.status(200).json({
+            data: posts,
+            currentPage: pageNumber,
+            totalPages: Math.ceil(totalItems / limitNumber),
+            totalItems,
+        });
     } catch (error) {
         console.error('Error fetching archive data:', error);
         res.status(500).json({ message: 'Error fetching archive data' });
     }
 });
+
 
 // ✅ **Cancel a Post (Clears Transfer Details)**
 router.put('/:postId/cancel', auth, async (req, res) => {

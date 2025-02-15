@@ -4,26 +4,31 @@
     padding: 0;
     box-sizing: border-box;
 }
-.indexbody{
-    margin: 0px;
-    padding: 0px;
-    overflow-y: auto;
-}
 h2 {
-    font-size: 1.8rem;
+    width: 80%;
     color: #df0000;
     text-align: center;
-    margin-bottom: 1rem;
+    text-shadow: 0px 0px 6px rgba(255, 255, 255, 10); /* X-offset, Y-offset, Blur, Color */
+    background-color: white;
+    border-radius: 25px;
+    margin: auto; /* Removes any default margin on h2 that might affect alignment */
+    padding: 12px;
+    font-size: 1.8rem; /* Adjust font size if needed */ 
+    justify-content: center;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f6f9;
+    background-color: rgba(255, 255, 255, 0.0);
     color: #333;
     margin: 0; /* Ensure no unwanted margin */
     padding: 1rem; /* Padding inside the body */
     box-sizing: border-box; /* Ensure padding is included in width/height */
     width: 100%;
     overflow: hidden;
+    height: 900px;
 }
 html {
     margin: 0; /* Remove default browser margins */
@@ -41,13 +46,58 @@ header {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+    flex-decoration: column;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
 }
-header#headerprofile{
-    margin: 0; /* Removes any default margin on h2 that might affect alignment */
-    font-size: 1.8rem; /* Adjust font size if needed */
-    color: white; 
-    justify-content: center;
+header h1{
+    width: 100%;
+}
+
+body.indexbody {
+    background-image: url('/assets/LOGO4.png');
+    background-size: cover; /* Ensures the image covers the entire background */
+    background-position: center; /* Centers the image */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+    min-height: 720px;
+    margin: 0; /* Removes any margin around the page */
+    padding: 0px;
+    overflow-y: auto;
+}
+body.indexbody::after {
+    content: '';
+    position: fixed;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.5); /* Adjust the opacity value */
+    z-index: -1; /* Places the pseudo-element behind the content */
+
+}
+
+/* Card and Animation Styling */
+.card {
+    background-color: #f7f5f5;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transform: translateY(30px);
+    opacity: 0;
+    animation: slideIn 1s forwards;
+}
+
+.animate-card {
+    animation-delay: 0.9s; /* Slight delay between each card */
+}
+
+@keyframes slideIn {
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 /* Payment Box Styling */
 .payment-box {
@@ -76,13 +126,6 @@ header#headerprofile{
 .payment-box:hover a {
     color: #df0000;
 }
-
-
-header#headerprofile h2{
-    margin:0.5em;
-    color: white; 
-}
-
 .headerlogo {
     width: 20%;
     max-width: 20%;
@@ -135,25 +178,24 @@ nav a:hover {
 
 /* Main Content Area Styling */
 main {
-    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.0);
     width: 100%;
-    max-width: 1400px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
+    max-width: 1500px;
     margin:auto;
     border:none;
 }
 
-
-/* Footer Styling */
 footer {
     background-color: #333;
     color: #fff;
     padding: 1rem;
     text-align: center;
     width: 100%;
-    margin-top: auto;
+    position: relative;
+    bottom: 0;
+    left: 0;
 }
+
 
 .footer-content {
     max-width: 1080px;
@@ -207,6 +249,7 @@ button[type="submit"] {
     cursor: pointer;
     font-weight: bold;
     transition: background-color 0.3s ease;
+    width: 100%;
 }
 
 button[type="submit"]:hover {
@@ -222,6 +265,10 @@ button {
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-right: auto;
+    margin-left: auto;
+    width: 150px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 button:hover {
@@ -233,7 +280,7 @@ button[onclick*="approved"] {
 }
 
 button[onclick*="rejected"] {
-    background-color: #e74c3c;
+    background-color: #df0000;
 }
 
 button[onclick*="approved"]:hover {
@@ -243,6 +290,42 @@ button[onclick*="approved"]:hover {
 button[onclick*="rejected"]:hover {
     background-color: #c0392b;
 }
+.slider-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .range-slider {
+        width: 200px;
+        -webkit-appearance: none;
+        appearance: none;
+        background: transparent;
+    }
+
+    /* Custom slider styling */
+    .range-slider::-webkit-slider-runnable-track {
+        background: #007bff;
+        height: 6px;
+        border-radius: 3px;
+    }
+
+    .range-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        background: #007bff;
+        border-radius: 50%;
+        cursor: pointer;
+        margin-top: -7px;
+    }
+
+    .amount-labels {
+        display: flex;
+        justify-content: space-between;
+        width: 200px;
+        font-size: 14px;
+    }
 
 /* Dashboard and Post Containers */
 .dashboard-container {
@@ -256,18 +339,40 @@ button[onclick*="rejected"]:hover {
 
 /* Individual Post Styling */
 .post {
-    background-color: #fff;
+    background-color: #f7f5f5;
     padding: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     line-height: 1.6;
 }
+button[onclick*="openTransferForm"]{
+    width:100%;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+#transferablePostsContainer {
+    margin-left: 10%;
+    margin-right: 10%;
+}
+.transfer-form {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-in-out;
+}
+
+.transfer-form.open {
+    max-height: 500px; /* Adjust based on form height */
+    padding: 10px;
+}
 
 .dashboard-section {
-    max-height: 500px;
+    max-height: 800px;
+    width: 45%;
     overflow-y: auto;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    background-color:#fff;
 }
 
 /* General Section Styling */
@@ -286,7 +391,8 @@ section h2 {
     margin-bottom: 1rem;
 }
 
-section p {
+
+section p, section ol, section ul {
     font-size: 1rem;
     color: #333;
     margin-bottom: 1.5rem;
@@ -295,11 +401,9 @@ section p {
 
 section ol {
     padding-left: 1.5rem;
-    margin-bottom: 1.5rem;
 }
 
-section ol li,
-section ul li {
+section ol li, section ul li {
     font-size: 1rem;
     margin-bottom: 0.8rem;
     line-height: 1.5;
@@ -375,6 +479,24 @@ form#mediatorForm button[type="submit"] {
 .archive-item button:hover {
     background-color: #c0392b;
 }
+.filter-buttons {
+    display: flex;
+    gap: 10px; /* Spacing between buttons */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    white-space: nowrap; /* Prevent buttons from wrapping */
+    padding: 10px; /* Add some padding */
+    scrollbar-width: thin; /* For Firefox */
+}
+
+/* Hide scrollbar for Webkit (Chrome, Safari) */
+.filter-buttons::-webkit-scrollbar {
+    height: 5px;
+}
+
+.filter-buttons::-webkit-scrollbar-thumb {
+    background: #888; /* Color of scrollbar */
+    border-radius: 10px;
+}
 
 /* Responsive Adjustments for 768px */
 @media (max-width: 768px) {
@@ -399,6 +521,12 @@ form#mediatorForm button[type="submit"] {
     form#postForm label,
     form#profileForm label,
     form#mediatorForm label {
+        font-size: 1.1rem;
+    }
+    .card {
+        padding: 1.5rem;
+    }
+    section h2 {
         font-size: 1.3rem;
     }
 
@@ -432,10 +560,28 @@ form#mediatorForm button[type="submit"] {
 
     nav a {
         padding: 1rem ;
-        font-size: 0.8rem;
-        width: 100px ;
+        font-size: 0.7rem;
+        width: 80px ;
         text-align: center;
     }
+    .filter-buttons {
+    display: flex;
+    gap: 10px; /* Spacing between buttons */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    white-space: nowrap; /* Prevent buttons from wrapping */
+    padding: 10px; /* Add some padding */
+    scrollbar-width: thin; /* For Firefox */
+}
+
+/* Hide scrollbar for Webkit (Chrome, Safari) */
+.filter-buttons::-webkit-scrollbar {
+    height: 5px;
+}
+
+.filter-buttons::-webkit-scrollbar-thumb {
+    background: #888; /* Color of scrollbar */
+    border-radius: 10px;
+}
 }
 
 /* Responsive Adjustments for 480px */
@@ -460,17 +606,23 @@ form#mediatorForm button[type="submit"] {
     form#postForm label,
     form#profileForm label,
     form#mediatorForm label {
-        font-size: 1.1rem;
+        font-size: 1rem;
     }
 
     .headerlogo {
         min-width: 120px;
     }
+    h3, p{
+        font-size: 0.8rem;
+    }
 
     nav a {
         padding: 1rem 0.2rem;
-        font-size: 0.8rem;
-        width: 80px;
+        font-size: 0.7rem;
+        width: 70px;
         text-align: center;
+    }
+    button[onclick*="openTransferForm"]{
+         width: 100%;
     }
 }

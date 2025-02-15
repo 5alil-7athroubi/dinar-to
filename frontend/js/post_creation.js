@@ -1,6 +1,4 @@
 ﻿document.addEventListener("DOMContentLoaded", () => {
-    const amountSelect = document.getElementById("amountSelect");
-    const equivalentAmountInput = document.getElementById("equivalentAmount"); 
     const paymentButton = document.getElementById("paymentButton");
     const receiverEmailInput = document.getElementById("receiverEmail");
     const token = localStorage.getItem("token");
@@ -28,21 +26,53 @@
         "300": "https://yourpayment.com/300"
     };
 
-    // Select correct payment options based on user location
+    // ✅ Correct payment options assignment (No duplicate)
     let paymentOptions = userPlace === "Tunisia" ? paymentLinksTunisia : paymentLinksOutTunisia;
+    const validAmounts = Object.keys(paymentOptions).map(Number); // Convert to numbers
 
-    // Populate the dropdown with the correct values
-    amountSelect.innerHTML = "";
-    Object.keys(paymentOptions).forEach(amount => {
-        const option = document.createElement("option");
-        option.value = amount;
-        option.textContent = `${amount} ${userPlace === "Tunisia" ? "DT" : "$"}`;
-        amountSelect.appendChild(option);
+    // Get elements
+    const amountRange = document.getElementById("amountRange");
+    const amountValue = document.getElementById("amountValue");
+    const amountLabels = document.getElementById("amountLabels");
+
+    // ✅ Define missing elements
+    const amountSelect = document.getElementById("amountSelect");  
+    const equivalentAmountInput = document.getElementById("equivalentAmount");
+
+    // Set range attributes
+    amountRange.min = 0;
+    amountRange.max = validAmounts.length - 1;
+    amountRange.value = 0; // Default to first amount
+
+    // Hide amount labels (optional)
+    amountLabels.style.display = "none";
+
+    // ✅ Update display when moving slider
+    function updateAmount() {
+        let index = amountRange.value;
+        let selectedAmount = validAmounts[index];
+        amountValue.textContent = `${selectedAmount} ${userPlace === "Tunisia" ? "DT" : "$"}`;
+        paymentButton.href = paymentOptions[selectedAmount];
+
+        // ✅ Sync dropdown with range input (if both are used)
+        if (amountSelect) {
+            amountSelect.value = selectedAmount;
+        }
+
+        // Update equivalent amount
+        updateEquivalentAmount();
+    }
+
+    // ✅ Force snapping to valid values
+    amountRange.addEventListener("input", () => {
+        let closestIndex = Math.round(amountRange.value);
+        amountRange.value = closestIndex; // Snap to closest step
+        updateAmount();
     });
 
-    // Function to update the equivalent amount in the input field
+    // ✅ Update equivalent amount
     function updateEquivalentAmount() {
-        const selectedAmount = parseFloat(amountSelect.value);
+        const selectedAmount = parseFloat(amountSelect ? amountSelect.value : validAmounts[amountRange.value]);
         if (userPlace === "Tunisia") {
             equivalentAmountInput.value = `${(selectedAmount * conversionRate).toFixed(2)} USD`;
         } else {
@@ -50,13 +80,10 @@
         }
     }
 
-    // Update equivalent amount when selection changes
-    amountSelect.addEventListener("change", updateEquivalentAmount);
+    // ✅ Initialize equivalent amount
+    updateAmount();
 
-    // Initialize equivalent amount on page load
-    updateEquivalentAmount();
-
-    // ✅ Function to validate receiver email before proceeding
+    // ✅ Validate receiver email
     async function validateReceiverEmail(email) {
         const baseUrl = window.location.hostname === "localhost"
             ? "http://localhost:5000"
@@ -72,17 +99,16 @@
                 return null; // Receiver not found
             }
 
-            const receiver = await response.json();
-            return receiver; // Return receiver data if found
+            return await response.json();
         } catch (error) {
             console.error("Error validating receiver email:", error);
             return null;
         }
     }
 
-    // ✅ Function to process payment & validate receiver
+    // ✅ Process payment
     async function processPayment() {
-        const selectedAmount = parseFloat(amountSelect.value);
+        const selectedAmount = parseFloat(amountSelect ? amountSelect.value : validAmounts[amountRange.value]);
         const paymentLink = paymentOptions[selectedAmount];
         const receiverEmail = receiverEmailInput.value.trim();
 
@@ -98,7 +124,7 @@
             return;
         }
 
-        // Ensure the receiver has a different place than the sender
+        // Ensure the receiver is from a different place
         if (receiver.place === userPlace) {
             alert("Receiver must be from a different place than the sender.");
             return;
@@ -114,8 +140,8 @@
             amountDT: userPlace === "Tunisia" ? selectedAmount : equivalentAmount,
             amountUSD: userPlace !== "Tunisia" ? selectedAmount : equivalentAmount,
             receiverEmail: receiverEmail,
-            status: "pending", // Default status
-            createdAt: new Date().toISOString() // Match the schema's createdAt field
+            status: "pending",
+            createdAt: new Date().toISOString()
         };
 
         const baseUrl = window.location.hostname === "localhost"
@@ -133,10 +159,10 @@
             });
 
             if (response.ok) {
-                // Open payment link in a new tab after ensuring post is saved
+                // ✅ Open payment link & reload page
                 setTimeout(() => {
                     window.open(paymentLink, "_blank");
-                    window.parent.location.reload();
+                    window.location.reload();
                 }, 500);
             } else {
                 const errorData = await response.json();
@@ -150,7 +176,7 @@
 
     // ✅ Set the button to call processPayment when clicked
     paymentButton.addEventListener("click", (e) => {
-        e.preventDefault(); // Prevent default link behavior
+        e.preventDefault();
         processPayment();
     });
 });
