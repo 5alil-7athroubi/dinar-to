@@ -77,9 +77,15 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
     try {
         const { username, email, bankInfo } = req.body;
+        
+        // Validate user input
+        if (typeof username !== 'string' || typeof email !== 'string' || typeof bankInfo !== 'object') {
+            return res.status(400).json({ message: 'Invalid input data' });
+        }
+
         const updatedUser = await User.findByIdAndUpdate(
             req.user.userId,
-            { username, email, bankInfo },
+            { $set: { username, email, bankInfo } },
             { new: true, runValidators: true }
         ).select('-password');
 
