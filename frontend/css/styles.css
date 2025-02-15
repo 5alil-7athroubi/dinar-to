@@ -625,4 +625,10 @@ form#mediatorForm button[type="submit"] {
     button[onclick*="openTransferForm"]{
          width: 100%;
     }
+    button#nextPage{
+        width: 100px;
+    }
+    button#prevPage{
+        width: 100px;
+    }
 }
