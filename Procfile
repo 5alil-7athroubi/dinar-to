@@ -1,2 +1,1 @@
-web: node backend/server.js
-frontend: npx http-server frontend -p $PORT
+web: npm run build && node backend/server.js
