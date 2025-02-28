@@ -129,25 +129,8 @@ Ce projet est sous licence **MIT**.
 Open a terminal or command prompt and move to your DINAR project folder:
 
 cd /path/to/DINAR
-2️⃣ Check Git Status
-See what changes have been made:
-
 git status
-3️⃣ Add Changes to Git
-If you modified multiple files, stage them all:
-
 git add .
-Or, to add specific files:
-
-git add file1 file2
-4️⃣ Commit Your Changes
-Add a meaningful commit message:
-
 git commit -m "Updated feature X and fixed bug Y"
-5️⃣ Push to GitHub
-If you are working on the main branch:
-
+git pull
 git push origin main
-If you are working on a different branch, replace main with your branch name:
-
-git push origin your-branch-name
