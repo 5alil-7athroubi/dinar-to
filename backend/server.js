@@ -31,7 +31,6 @@ function getWiFiIP() {
     return preferredIP; // Return preferred IP if WiFi IP is not found
 }
 
-console.log(getWiFiIP());
 const HOST = getWiFiIP();
 const PORT = process.env.PORT || 5000;
 
@@ -57,7 +56,7 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 app.use('/posts', postRoutes);
 app.use('/admin', adminRoutes);
-app.use('/users', userRoutes);       // Registering the /users route
+app.use('/users', userRoutes);  // Registering the /users route
 
 // Default route for the root URL
 app.get('/', (req, res) => {
@@ -65,18 +64,24 @@ app.get('/', (req, res) => {
 });
 
 // MongoDB connection
+if (!process.env.DATABASE_URL) {
+    console.error("DATABASE_URL is missing in the .env file");
+    process.exit(1);
+}
+
 mongoose.connect(process.env.DATABASE_URL)
     .then(() => console.log('Connected to MongoDB'))
     .catch((error) => console.error('Failed to connect to MongoDB:', error));
 
-// Start the server
-app.listen(PORT, HOST, () => {
-    console.log(`Server running on http://${HOST}:${PORT}`);
-});
-const path = require('path');
+// Serve frontend static files (ensure frontend is built)
 app.use(express.static(path.join(__dirname, 'frontend')));
 
 // Default route to serve the frontend index.html
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+});
+
+// Start the server
+app.listen(PORT, HOST, () => {
+    console.log(`Server running on http://${HOST}:${PORT}`);
 });
