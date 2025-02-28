@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const os = require('os');
+const path = require('path');  // Import the 'path' module
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const postRoutes = require('./routes/posts');
@@ -85,3 +86,4 @@ app.get('*', (req, res) => {
 app.listen(PORT, HOST, () => {
     console.log(`Server running on http://${HOST}:${PORT}`);
 });
+
