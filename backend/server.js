@@ -73,3 +73,10 @@ mongoose.connect(process.env.DATABASE_URL)
 app.listen(PORT, HOST, () => {
     console.log(`Server running on http://${HOST}:${PORT}`);
 });
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'frontend')));
+
+// Default route to serve the frontend index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+});
